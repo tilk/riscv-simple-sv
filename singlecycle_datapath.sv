@@ -59,18 +59,18 @@ module singlecycle_datapath (
     
     adder #(
         .WIDTH(32)
-        ) adder_pc_plus_4 (
-            .operand_a      (32'h00000004),
-            .operand_b      (pc),
-            .result         (pc_plus_4)
+    ) adder_pc_plus_4 (
+        .operand_a      (32'h00000004),
+        .operand_b      (pc),
+        .result         (pc_plus_4)
     );
     
     adder #(
-        .WIDTH(32)
-        ) adder_pc_plus_immediate (
-            .operand_a      (pc),
-            .operand_b      (immediate),
-            .result         (pc_plus_immediate)
+       .WIDTH(32)
+    ) adder_pc_plus_immediate (
+        .operand_a      (pc),
+        .operand_b      (immediate),
+        .result         (pc_plus_immediate)
     );
     
     alu alu(
@@ -96,56 +96,48 @@ module singlecycle_datapath (
         .next_pc_select     (next_pc_select)
     );
     
-    multiplexer #(
-        .WIDTH(32),
-        .CHANNELS(4)
+    multiplexer4 #(
+        .WIDTH(32)
     ) mux_next_pc_select (
-        .in_bus         ({  {pc_plus_4},
-                            {pc_plus_immediate},
-                            {alu_result[31:1], 1'b0},
-                            {32'b0}
-                        }),
-        .sel            (next_pc_select),
-        .out            (next_pc)
+        .in0 (pc_plus_4),
+        .in1 (pc_plus_immediate),
+        .in2 ({alu_result[31:1], 1'b0}),
+        .in3 (32'b0),
+        .sel (next_pc_select),
+        .out (next_pc)
     );
     
-    multiplexer #(
-        .WIDTH(32),
-        .CHANNELS(2)
+    multiplexer2 #(
+        .WIDTH(32)
     ) mux_operand_a (
-        .in_bus         ({  {rs1_data},
-                            {pc}
-                        }),
-        .sel            (alu_operand_a_select),
-        .out            (alu_operand_a)
+        .in0 (rs1_data),
+        .in1 (pc),
+        .sel (alu_operand_a_select),
+        .out (alu_operand_a)
     );
     
-    multiplexer #(
-        .WIDTH(32),
-        .CHANNELS(2)
+    multiplexer2 #(
+        .WIDTH(32)
     ) mux_operand_b (
-        .in_bus         ({  {rs2_data},
-                            {immediate}
-                        }),
-        .sel            (alu_operand_b_select),
-        .out            (alu_operand_b)
+        .in0 (rs2_data),
+        .in1 (immediate),
+        .sel (alu_operand_b_select),
+        .out (alu_operand_b)
     );
     
-    multiplexer #(
-        .WIDTH      (32),
-        .CHANNELS   (8)
+    multiplexer8 #(
+        .WIDTH(32)
     ) mux_reg_writeback (
-        .in_bus         ({  {alu_result},
-                            {data_mem_data_fetched},
-                            {pc_plus_4},
-                            {immediate},
-                            {32'b0},
-                            {32'b0},
-                            {32'b0},
-                            {32'b0}
-                        }),
-        .sel            (reg_writeback_select),
-        .out            (rd_data)
+        .in0 (alu_result),
+        .in1 (data_mem_data_fetched),
+        .in2 (pc_plus_4),
+        .in3 (immediate),
+        .in4 (32'b0),
+        .in5 (32'b0),
+        .in6 (32'b0),
+        .in7 (32'b0),
+        .sel (reg_writeback_select),
+        .out (rd_data)
     );
     
     program_counter program_counter(
