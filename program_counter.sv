@@ -13,23 +13,13 @@ module program_counter (
     input  write_enable,
     input  [31:0] next_pc,
 
-    output reg [31:0] pc
+    output [31:0] pc
 );
 
-initial begin
-    pc <= `INITIAL_PC;
-end
-
-always @ (posedge clock or posedge reset) begin
-    // Reseta o contador de programa
-    if (reset) begin
-        pc <= `INITIAL_PC;
-    end
-
-    // Habilta a escrita de PC
-    else if (write_enable) begin
-        pc <= next_pc;
-    end
-end
+   initial pc = `INITIAL_PC;
+   
+   always_ff @ (posedge clock or posedge reset)
+       if (reset) pc <= `INITIAL_PC;
+       else if (write_enable) pc <= next_pc;
 
 endmodule

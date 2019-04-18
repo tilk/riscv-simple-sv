@@ -19,36 +19,27 @@ module regfile (
     output [31:0] rs2_data      // Dado lido do registrador rs2
 );
 
-// 32 registradores de 32 bits
-reg [31:0] register [0:31];
-
-// Contador para loop de inicialização de registradores
-integer i;
-
-initial begin
-    for (i = 0; i <= 31; i = i + 1) begin
-        register[i] <= 32'b0;
-        // TODO: Inserir registradores com valor inicial != 32'b0
-    end
-end
-
-assign rs1_data = register[rs1_address];
-assign rs2_data = register[rs2_address];
-
-always @ (posedge clock or posedge reset) begin
-    // Reseta os registradores
-    if (reset) begin
+    // 32 registers of 32-bit width
+    logic [31:0] register [0:31];
+    
+    // Loop counter
+    integer i;
+    
+    initial
         for (i = 0; i <= 31; i = i + 1) begin
             register[i] <= 32'b0;
-            // TODO: Inserir registradores com valor inicial != 32'b0
         end
-    end
-    else if (write_enable) begin
-        if (rd_address != 5'b0) register[rd_address] <= rd_data;
-        else                    register[rd_address] <= 32'b0;
-    end
-    else i <= 0;    // Remove inferência de latch
-end
+    
+    assign rs1_data = register[rs1_address];
+    assign rs2_data = register[rs2_address];
+    
+    always_ff @(posedge clock or posedge reset)
+        if (reset)
+            for (i = 0; i <= 31; i = i + 1)
+                register[i] <= 32'b0;
+        else if (write_enable)
+            if (rd_address != 5'b0) register[rd_address] <= rd_data;
+            else                    register[rd_address] <= 32'b0;
 
 endmodule
 

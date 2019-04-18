@@ -10,23 +10,22 @@
 module text_memory_interface (
     input  clock,
     input  [31:0] address,
-    output reg [31:0] data_fetched
+    output [31:0] data_fetched
 );
 
-wire [31:0] fetched;
-
-text_memory text_memory(
-    .address    (address[15:2]),
-    .clock      (clock),
-    .q          (fetched)
-);
-
-always @ (*) begin
-    if ((address >= `TEXT_BEGIN) && (address <= `TEXT_END))
-        data_fetched = fetched;
-    else
-        data_fetched = 32'hzzzzzzzz;
-end
+    logic [31:0] fetched;
+    
+    text_memory text_memory(
+        .address    (address[15:2]),
+        .clock      (clock),
+        .q          (fetched)
+    );
+    
+    always_comb
+        if (address >= `TEXT_BEGIN && address <= `TEXT_END)
+            data_fetched = fetched;
+        else
+            data_fetched = 32'hxxxxxxxx;
 
 endmodule
 

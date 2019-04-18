@@ -9,25 +9,23 @@
 
 module singlecycle_control (
     input  [6:0] inst_opcode,
-    input  inst_bit_30,             // Identifica funções secundárias da ULA
+    input  inst_bit_30,             // for ALU op selection
 `ifdef M_MODULE
-    input  inst_bit_25,             // Identifica operações da extensão M
+    input  inst_bit_25,             // for multiplication op
 `endif
 
-    output reg pc_write_enable,         // Habilita escrita de PC
-    output reg regfile_write_enable,    // Habilita escrita no regfile
-    output reg alu_operand_a_select,    // Seleciona a entrada A da ULA
-    output reg alu_operand_b_select,    // Seleciona a entrada B da ULA
-    output reg [2:0] alu_op_type,       // Seleciona a funcionalidade da ULA
-    output reg jal_enable,              // JAL
-    output reg jalr_enable,             // JALR
-    output reg branch_enable,           // Branching
-    output reg data_mem_read_enable,    // Habilita leitura da memória de dados
-    output reg data_mem_write_enable,   // Habilita escrita na memória de dados
-    output reg [2:0] reg_writeback_select   // Seleciona a entrada de escrita do regfile
+    output pc_write_enable,
+    output regfile_write_enable,
+    output alu_operand_a_select,
+    output alu_operand_b_select,
+    output [2:0] alu_op_type,
+    output jal_enable,
+    output jalr_enable,
+    output branch_enable,
+    output data_mem_read_enable,
+    output data_mem_write_enable,
+    output [2:0] reg_writeback_select
 );
-
-// TODO: Implementar sinal de controle para nível privilegiado
 
 // Tabela de tipo de operações da ULA (alu_op_type[2:0])
 // 3'b000: Zero
@@ -46,259 +44,259 @@ module singlecycle_control (
 // 3'b100: Dado do registrador de ponto flutuante rs1
 // 3'b101: Leitura dos CSR's
 
-always @ (*) begin
-    // Caso default
-    pc_write_enable         = 1'b1;
-    regfile_write_enable    = 1'b0;
-    alu_operand_a_select    = 1'b0;
-    alu_operand_b_select    = 1'b0;
-    alu_op_type             = 3'b000;
-    jal_enable              = 1'b0;
-    jalr_enable             = 1'b0;
-    branch_enable           = 1'b0;
-    data_mem_read_enable    = 1'b0;
-    data_mem_write_enable   = 1'b0;
-    reg_writeback_select    = 3'b000;
 
-    case (inst_opcode)
-        `OPCODE_LOAD:
-        begin
-            pc_write_enable         = 1'b1;
-            regfile_write_enable    = 1'b1;
-            alu_operand_a_select    = 1'b0;
-            alu_operand_b_select    = 1'b1;
-            alu_op_type             = 3'b001;
-            jal_enable              = 1'b0;
-            jalr_enable             = 1'b0;
-            branch_enable           = 1'b0;
-            data_mem_read_enable    = 1'b1;
-            data_mem_write_enable   = 1'b0;
-            reg_writeback_select    = 3'b001;
-        end
-
-        // // `OPCODE_LOAD_FP:
-        // begin
-        //     pc_write_enable         = 1'b1;
-        //     regfile_write_enable    = 1'b0;
-        //     alu_operand_a_select    = 1'b0;
-        //     alu_operand_b_select    = 1'b0;
-        //     alu_op_type             = 3'b000;
-        //     jal_enable              = 1'b0;
-        //     jalr_enable             = 1'b0;
-        //     branch_enable           = 1'b0;
-        //     data_mem_read_enable    = 1'b0;
-        //     data_mem_write_enable   = 1'b0;
-        //     reg_writeback_select    = 3'b000;
-        // end
-
-        `OPCODE_MISC_MEM:
-        begin
-            // Fence - Ignorado, mas não causa exceção
-            pc_write_enable         = 1'b1;
-            regfile_write_enable    = 1'b0;
-            alu_operand_a_select    = 1'b0;
-            alu_operand_b_select    = 1'b0;
-            alu_op_type             = 3'b000;
-            jal_enable              = 1'b0;
-            jalr_enable             = 1'b0;
-            branch_enable           = 1'b0;
-            data_mem_read_enable    = 1'b0;
-            data_mem_write_enable   = 1'b0;
-            reg_writeback_select    = 3'b000;
-        end
-
-        `OPCODE_OP_IMM:
-        begin
-            pc_write_enable         = 1'b1;
-            regfile_write_enable    = 1'b1;
-            alu_operand_a_select    = 1'b0;
-            alu_operand_b_select    = 1'b1;
-            alu_op_type             = 3'b010;
-            jal_enable              = 1'b0;
-            jalr_enable             = 1'b0;
-            branch_enable           = 1'b0;
-            data_mem_read_enable    = 1'b0;
-            data_mem_write_enable   = 1'b0;
-            reg_writeback_select    = 3'b000;
-        end
-
-        `OPCODE_AUIPC:
-        begin
-            pc_write_enable         = 1'b1;
-            regfile_write_enable    = 1'b1;
-            alu_operand_a_select    = 1'b1;
-            alu_operand_b_select    = 1'b1;
-            alu_op_type             = 3'b001;
-            jal_enable              = 1'b0;
-            jalr_enable             = 1'b0;
-            branch_enable           = 1'b0;
-            data_mem_read_enable    = 1'b0;
-            data_mem_write_enable   = 1'b0;
-            reg_writeback_select    = 3'b000;
-        end
-
-        `OPCODE_STORE:
-        begin
-            pc_write_enable         = 1'b1;
-            regfile_write_enable    = 1'b0;
-            alu_operand_a_select    = 1'b0;
-            alu_operand_b_select    = 1'b1;
-            alu_op_type             = 3'b001;
-            jal_enable              = 1'b0;
-            jalr_enable             = 1'b0;
-            branch_enable           = 1'b0;
-            data_mem_read_enable    = 1'b0;
-            data_mem_write_enable   = 1'b1;
-            reg_writeback_select    = 3'b000;
-        end
-
-        // // `OPCODE_STORE_FP:
-        // begin
-        //     pc_write_enable         = 1'b1;
-        //     regfile_write_enable    = 1'b0;
-        //     alu_operand_a_select    = 1'b0;
-        //     alu_operand_b_select    = 1'b0;
-        //     alu_op_type             = 3'b000;
-        //     jal_enable              = 1'b0;
-        //     jalr_enable             = 1'b0;
-        //     branch_enable           = 1'b0;
-        //     data_mem_read_enable    = 1'b0;
-        //     data_mem_write_enable   = 1'b0;
-        //     reg_writeback_select    = 3'b000;
-        // end
-
-        `OPCODE_OP:
-        begin
-            pc_write_enable         = 1'b1;
-            regfile_write_enable    = 1'b1;
-            alu_operand_a_select    = 1'b0;
-            alu_operand_b_select    = 1'b0;
-            jal_enable              = 1'b0;
-            jalr_enable             = 1'b0;
-            branch_enable           = 1'b0;
-            data_mem_read_enable    = 1'b0;
-            data_mem_write_enable   = 1'b0;
-            reg_writeback_select    = 3'b000;
-
-            if (inst_bit_30 == 1'b1) begin
-                alu_op_type             = 3'b011;
+    always_comb begin
+        pc_write_enable         = 1'b1;
+        regfile_write_enable    = 1'b0;
+        alu_operand_a_select    = 1'b0;
+        alu_operand_b_select    = 1'b0;
+        alu_op_type             = 3'b000;
+        jal_enable              = 1'b0;
+        jalr_enable             = 1'b0;
+        branch_enable           = 1'b0;
+        data_mem_read_enable    = 1'b0;
+        data_mem_write_enable   = 1'b0;
+        reg_writeback_select    = 3'b000;
+    
+        case (inst_opcode)
+            `OPCODE_LOAD:
+            begin
+                pc_write_enable         = 1'b1;
+                regfile_write_enable    = 1'b1;
+                alu_operand_a_select    = 1'b0;
+                alu_operand_b_select    = 1'b1;
+                alu_op_type             = 3'b001;
+                jal_enable              = 1'b0;
+                jalr_enable             = 1'b0;
+                branch_enable           = 1'b0;
+                data_mem_read_enable    = 1'b1;
+                data_mem_write_enable   = 1'b0;
+                reg_writeback_select    = 3'b001;
             end
-`ifdef M_MODULE
-            else if (inst_bit_25 == 1'b1) begin
-                alu_op_type             = 3'b101;
+    
+            // // `OPCODE_LOAD_FP:
+            // begin
+            //     pc_write_enable         = 1'b1;
+            //     regfile_write_enable    = 1'b0;
+            //     alu_operand_a_select    = 1'b0;
+            //     alu_operand_b_select    = 1'b0;
+            //     alu_op_type             = 3'b000;
+            //     jal_enable              = 1'b0;
+            //     jalr_enable             = 1'b0;
+            //     branch_enable           = 1'b0;
+            //     data_mem_read_enable    = 1'b0;
+            //     data_mem_write_enable   = 1'b0;
+            //     reg_writeback_select    = 3'b000;
+            // end
+    
+            `OPCODE_MISC_MEM:
+            begin
+                // Fence - Ignorado, mas não causa exceção
+                pc_write_enable         = 1'b1;
+                regfile_write_enable    = 1'b0;
+                alu_operand_a_select    = 1'b0;
+                alu_operand_b_select    = 1'b0;
+                alu_op_type             = 3'b000;
+                jal_enable              = 1'b0;
+                jalr_enable             = 1'b0;
+                branch_enable           = 1'b0;
+                data_mem_read_enable    = 1'b0;
+                data_mem_write_enable   = 1'b0;
+                reg_writeback_select    = 3'b000;
             end
-`endif
-            else begin
+    
+            `OPCODE_OP_IMM:
+            begin
+                pc_write_enable         = 1'b1;
+                regfile_write_enable    = 1'b1;
+                alu_operand_a_select    = 1'b0;
+                alu_operand_b_select    = 1'b1;
                 alu_op_type             = 3'b010;
+                jal_enable              = 1'b0;
+                jalr_enable             = 1'b0;
+                branch_enable           = 1'b0;
+                data_mem_read_enable    = 1'b0;
+                data_mem_write_enable   = 1'b0;
+                reg_writeback_select    = 3'b000;
             end
-        end
-
-        `OPCODE_LUI:
-        begin
-            pc_write_enable         = 1'b1;
-            regfile_write_enable    = 1'b1;
-            alu_operand_a_select    = 1'b0;
-            alu_operand_b_select    = 1'b0;
-            alu_op_type             = 3'b000;
-            jal_enable              = 1'b0;
-            jalr_enable             = 1'b0;
-            branch_enable           = 1'b0;
-            data_mem_read_enable    = 1'b0;
-            data_mem_write_enable   = 1'b0;
-            reg_writeback_select    = 3'b011;
-        end
-
-        // // `OPCODE_OP_FP:
-        // begin
-        //     pc_write_enable         = 1'b1;
-        //     regfile_write_enable    = 1'b0;
-        //     alu_operand_a_select    = 1'b0;
-        //     alu_operand_b_select    = 1'b0;
-        //     alu_op_type             = 3'b000;
-        //     jal_enable              = 1'b0;
-        //     jalr_enable             = 1'b0;
-        //     branch_enable           = 1'b0;
-        //     data_mem_read_enable    = 1'b0;
-        //     data_mem_write_enable   = 1'b0;
-        //     reg_writeback_select    = 3'b000;
-        // end
-
-        `OPCODE_BRANCH:
-        begin
-            pc_write_enable         = 1'b1;
-            regfile_write_enable    = 1'b0;
-            alu_operand_a_select    = 1'b0;
-            alu_operand_b_select    = 1'b0;
-            alu_op_type             = 3'b001;
-            jal_enable              = 1'b0;
-            jalr_enable             = 1'b0;
-            branch_enable           = 1'b1;
-            data_mem_read_enable    = 1'b0;
-            data_mem_write_enable   = 1'b0;
-            reg_writeback_select    = 3'b000;
-        end
-
-        `OPCODE_JALR:
-        begin
-            pc_write_enable         = 1'b1;
-            regfile_write_enable    = 1'b1;
-            alu_operand_a_select    = 1'b0;
-            alu_operand_b_select    = 1'b1;
-            alu_op_type             = 3'b001;
-            jal_enable              = 1'b0;
-            jalr_enable             = 1'b1;
-            branch_enable           = 1'b0;
-            data_mem_read_enable    = 1'b0;
-            data_mem_write_enable   = 1'b0;
-            reg_writeback_select    = 3'b010;
-        end
-
-        `OPCODE_JAL:
-        begin
-            pc_write_enable         = 1'b1;
-            regfile_write_enable    = 1'b1;
-            alu_operand_a_select    = 1'b1;
-            alu_operand_b_select    = 1'b1;
-            alu_op_type             = 3'b001;
-            jal_enable              = 1'b1;
-            jalr_enable             = 1'b0;
-            branch_enable           = 1'b0;
-            data_mem_read_enable    = 1'b0;
-            data_mem_write_enable   = 1'b0;
-            reg_writeback_select    = 3'b010;
-        end
-
-        // // `OPCODE_SYSTEM:
-        // begin
-        //     pc_write_enable         = 1'b1;
-        //     regfile_write_enable    = 1'b0;
-        //     alu_operand_a_select    = 1'b0;
-        //     alu_operand_b_select    = 1'b0;
-        //     alu_op_type             = 3'b000;
-        //     jal_enable              = 1'b0;
-        //     jalr_enable             = 1'b0;
-        //     branch_enable           = 1'b0;
-        //     data_mem_read_enable    = 1'b0;
-        //     data_mem_write_enable   = 1'b0;
-        //     reg_writeback_select    = 3'b000;
-        // end
-
-        default:
-        begin
-            pc_write_enable         = 1'b1;
-            regfile_write_enable    = 1'b0;
-            alu_operand_a_select    = 1'b0;
-            alu_operand_b_select    = 1'b0;
-            alu_op_type             = 3'b000;
-            jal_enable              = 1'b0;
-            jalr_enable             = 1'b0;
-            branch_enable           = 1'b0;
-            data_mem_read_enable    = 1'b0;
-            data_mem_write_enable   = 1'b0;
-            reg_writeback_select    = 3'b000;
-        end
-    endcase
-end
+    
+            `OPCODE_AUIPC:
+            begin
+                pc_write_enable         = 1'b1;
+                regfile_write_enable    = 1'b1;
+                alu_operand_a_select    = 1'b1;
+                alu_operand_b_select    = 1'b1;
+                alu_op_type             = 3'b001;
+                jal_enable              = 1'b0;
+                jalr_enable             = 1'b0;
+                branch_enable           = 1'b0;
+                data_mem_read_enable    = 1'b0;
+                data_mem_write_enable   = 1'b0;
+                reg_writeback_select    = 3'b000;
+            end
+    
+            `OPCODE_STORE:
+            begin
+                pc_write_enable         = 1'b1;
+                regfile_write_enable    = 1'b0;
+                alu_operand_a_select    = 1'b0;
+                alu_operand_b_select    = 1'b1;
+                alu_op_type             = 3'b001;
+                jal_enable              = 1'b0;
+                jalr_enable             = 1'b0;
+                branch_enable           = 1'b0;
+                data_mem_read_enable    = 1'b0;
+                data_mem_write_enable   = 1'b1;
+                reg_writeback_select    = 3'b000;
+            end
+    
+            // // `OPCODE_STORE_FP:
+            // begin
+            //     pc_write_enable         = 1'b1;
+            //     regfile_write_enable    = 1'b0;
+            //     alu_operand_a_select    = 1'b0;
+            //     alu_operand_b_select    = 1'b0;
+            //     alu_op_type             = 3'b000;
+            //     jal_enable              = 1'b0;
+            //     jalr_enable             = 1'b0;
+            //     branch_enable           = 1'b0;
+            //     data_mem_read_enable    = 1'b0;
+            //     data_mem_write_enable   = 1'b0;
+            //     reg_writeback_select    = 3'b000;
+            // end
+    
+            `OPCODE_OP:
+            begin
+                pc_write_enable         = 1'b1;
+                regfile_write_enable    = 1'b1;
+                alu_operand_a_select    = 1'b0;
+                alu_operand_b_select    = 1'b0;
+                jal_enable              = 1'b0;
+                jalr_enable             = 1'b0;
+                branch_enable           = 1'b0;
+                data_mem_read_enable    = 1'b0;
+                data_mem_write_enable   = 1'b0;
+                reg_writeback_select    = 3'b000;
+    
+                if (inst_bit_30 == 1'b1) begin
+                    alu_op_type             = 3'b011;
+                end
+    `ifdef M_MODULE
+                else if (inst_bit_25 == 1'b1) begin
+                    alu_op_type             = 3'b101;
+                end
+    `endif
+                else begin
+                    alu_op_type             = 3'b010;
+                end
+            end
+    
+            `OPCODE_LUI:
+            begin
+                pc_write_enable         = 1'b1;
+                regfile_write_enable    = 1'b1;
+                alu_operand_a_select    = 1'b0;
+                alu_operand_b_select    = 1'b0;
+                alu_op_type             = 3'b000;
+                jal_enable              = 1'b0;
+                jalr_enable             = 1'b0;
+                branch_enable           = 1'b0;
+                data_mem_read_enable    = 1'b0;
+                data_mem_write_enable   = 1'b0;
+                reg_writeback_select    = 3'b011;
+            end
+    
+            // // `OPCODE_OP_FP:
+            // begin
+            //     pc_write_enable         = 1'b1;
+            //     regfile_write_enable    = 1'b0;
+            //     alu_operand_a_select    = 1'b0;
+            //     alu_operand_b_select    = 1'b0;
+            //     alu_op_type             = 3'b000;
+            //     jal_enable              = 1'b0;
+            //     jalr_enable             = 1'b0;
+            //     branch_enable           = 1'b0;
+            //     data_mem_read_enable    = 1'b0;
+            //     data_mem_write_enable   = 1'b0;
+            //     reg_writeback_select    = 3'b000;
+            // end
+    
+            `OPCODE_BRANCH:
+            begin
+                pc_write_enable         = 1'b1;
+                regfile_write_enable    = 1'b0;
+                alu_operand_a_select    = 1'b0;
+                alu_operand_b_select    = 1'b0;
+                alu_op_type             = 3'b001;
+                jal_enable              = 1'b0;
+                jalr_enable             = 1'b0;
+                branch_enable           = 1'b1;
+                data_mem_read_enable    = 1'b0;
+                data_mem_write_enable   = 1'b0;
+                reg_writeback_select    = 3'b000;
+            end
+    
+            `OPCODE_JALR:
+            begin
+                pc_write_enable         = 1'b1;
+                regfile_write_enable    = 1'b1;
+                alu_operand_a_select    = 1'b0;
+                alu_operand_b_select    = 1'b1;
+                alu_op_type             = 3'b001;
+                jal_enable              = 1'b0;
+                jalr_enable             = 1'b1;
+                branch_enable           = 1'b0;
+                data_mem_read_enable    = 1'b0;
+                data_mem_write_enable   = 1'b0;
+                reg_writeback_select    = 3'b010;
+            end
+    
+            `OPCODE_JAL:
+            begin
+                pc_write_enable         = 1'b1;
+                regfile_write_enable    = 1'b1;
+                alu_operand_a_select    = 1'b1;
+                alu_operand_b_select    = 1'b1;
+                alu_op_type             = 3'b001;
+                jal_enable              = 1'b1;
+                jalr_enable             = 1'b0;
+                branch_enable           = 1'b0;
+                data_mem_read_enable    = 1'b0;
+                data_mem_write_enable   = 1'b0;
+                reg_writeback_select    = 3'b010;
+            end
+    
+            // // `OPCODE_SYSTEM:
+            // begin
+            //     pc_write_enable         = 1'b1;
+            //     regfile_write_enable    = 1'b0;
+            //     alu_operand_a_select    = 1'b0;
+            //     alu_operand_b_select    = 1'b0;
+            //     alu_op_type             = 3'b000;
+            //     jal_enable              = 1'b0;
+            //     jalr_enable             = 1'b0;
+            //     branch_enable           = 1'b0;
+            //     data_mem_read_enable    = 1'b0;
+            //     data_mem_write_enable   = 1'b0;
+            //     reg_writeback_select    = 3'b000;
+            // end
+    
+            default:
+            begin
+                pc_write_enable         = 1'b1;
+                regfile_write_enable    = 1'b0;
+                alu_operand_a_select    = 1'b0;
+                alu_operand_b_select    = 1'b0;
+                alu_op_type             = 3'b000;
+                jal_enable              = 1'b0;
+                jalr_enable             = 1'b0;
+                branch_enable           = 1'b0;
+                data_mem_read_enable    = 1'b0;
+                data_mem_write_enable   = 1'b0;
+                reg_writeback_select    = 3'b000;
+            end
+        endcase
+    end
 
 endmodule
 

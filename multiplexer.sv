@@ -15,18 +15,15 @@ module multiplexer #(
         output [WIDTH - 1:0]                out
 );
 
-genvar ig;
-
-// Vetor de palavras de #(WIDTH) bits com #(CHANNELS) posições.
-wire    [WIDTH - 1:0] input_array [0:CHANNELS - 1];
-
-assign  out = input_array[sel];
-
-generate
+    genvar ig;
+    
+    logic  [WIDTH - 1:0] input_array [0:CHANNELS - 1];
+    
+    assign out = input_array[sel];
+    
     for(ig = 0; ig < CHANNELS; ig = ig + 1) begin: array_assignments
         assign input_array[(CHANNELS - 1) - ig] = in_bus[(ig * WIDTH) +: WIDTH];
     end
-endgenerate
 
 endmodule
 
