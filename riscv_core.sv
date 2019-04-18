@@ -31,6 +31,18 @@ module riscv_core (
     logic branch_enable;
     logic [2:0] alu_op_type;
     logic [2:0] reg_writeback_select;
+    logic [6:0] inst_opcode;
+    logic [2:0] inst_funct3;
+    logic inst_bit_30;
+    `ifdef M_MODULE
+    logic inst_bit_25;
+    `endif
+    logic [4:0] inst_rd;
+    logic [4:0] inst_rs1;
+    logic [4:0] inst_rs2;
+    logic [31:0] immediate;
+
+    assign bus_format = inst_funct3;
 
     singlecycle_datapath singlecycle_datapath (
         .clock                  (clock),
@@ -38,8 +50,11 @@ module riscv_core (
         .data_mem_data_fetched  (bus_data_fetched),
         .data_mem_address       (bus_address),
         .data_mem_write_data    (bus_write_data),
-        .data_mem_format        (bus_format),
-        .inst                   (inst),
+        .immediate              (immediate),
+        .inst_funct3            (inst_funct3),
+        .inst_rd                (inst_rd),
+        .inst_rs1               (inst_rs1),
+        .inst_rs2               (inst_rs2),
         .pc                     (pc),
         .pc_write_enable        (pc_write_enable),
         .regfile_write_enable   (regfile_write_enable),
@@ -51,12 +66,30 @@ module riscv_core (
         .branch_enable          (branch_enable),
         .reg_writeback_select   (reg_writeback_select)
     );
+
+    instruction_decoder instruction_decoder(
+        .inst                   (inst),
+        .inst_opcode            (inst_opcode),
+        .inst_bit_30            (inst_bit_30),
+    `ifdef M_MODULE
+        .inst_bit_25            (inst_bit_25),
+    `endif
+        .inst_funct3            (inst_funct3),
+        .inst_rd                (inst_rd),
+        .inst_rs1               (inst_rs1),
+        .inst_rs2               (inst_rs2)
+    );
+    
+    immediate_generator immediate_generator(
+        .inst                   (inst),
+        .immediate              (immediate)
+    );
     
     singlecycle_control singlecycle_control(
-        .inst_opcode            (inst[6:0]),
-        .inst_bit_30            (inst[30]),
+        .inst_opcode            (inst_opcode),
+        .inst_bit_30            (inst_bit_30),
     `ifdef M_MODULE
-        .inst_bit_25            (inst[25]),
+        .inst_bit_25            (inst_bit_25),
     `endif
         .pc_write_enable        (pc_write_enable),
         .regfile_write_enable   (regfile_write_enable),
@@ -75,7 +108,7 @@ module riscv_core (
         .clock                  (clock),
         .read_enable            (bus_read_enable),
         .write_enable           (bus_write_enable),
-        .data_format            (inst[14:12]),
+        .data_format            (inst_funct3),
         .address                (bus_address),
         .write_data             (bus_write_data),
         .data_fetched           (bus_data_fetched)

@@ -15,9 +15,12 @@ module singlecycle_datapath (
     input  [31:0] data_mem_data_fetched,
     output [31:0] data_mem_address,
     output [31:0] data_mem_write_data,
-    output [2:0]  data_mem_format,
 
-    input  [31:0] inst,
+    input  [31:0] immediate,
+    input  [2:0]  inst_funct3,
+    input  [4:0]  inst_rd,
+    input  [4:0]  inst_rs1,
+    input  [4:0]  inst_rs2,
     output [31:0] pc,
     
     // control signals
@@ -32,9 +35,6 @@ module singlecycle_datapath (
     input [2:0] reg_writeback_select
 );
 
-    // immediate value
-    logic [31:0] immediate;
-    
     // register file inputs and outputs
     logic [31:0] rd_data;
     logic [31:0] rs1_data;
@@ -56,7 +56,6 @@ module singlecycle_datapath (
     // memory signals
     assign data_mem_address     = alu_result;
     assign data_mem_write_data  = rs2_data;
-    assign data_mem_format      = inst[14:12];
     
     adder #(
         .WIDTH(32)
@@ -84,7 +83,7 @@ module singlecycle_datapath (
     
     alu_control alu_control(
         .alu_op_type        (alu_op_type),
-        .inst_funct3        (inst[14:12]),
+        .inst_funct3        (inst_funct3),
         .alu_function       (alu_function)
     );
     
@@ -93,13 +92,8 @@ module singlecycle_datapath (
         .jal_enable         (jal_enable),
         .jalr_enable        (jalr_enable),
         .result_equal_zero  (alu_result_equal_zero),
-        .inst_funct3        (inst[14:12]),
+        .inst_funct3        (inst_funct3),
         .next_pc_select     (next_pc_select)
-    );
-    
-    immediate_generator immediate_generator(
-        .inst               (inst),
-        .immediate          (immediate)
     );
     
     multiplexer #(
@@ -166,9 +160,9 @@ module singlecycle_datapath (
         .clock              (clock),
         .reset              (reset),
         .write_enable       (regfile_write_enable),
-        .rd_address         (inst[11:7]),
-        .rs1_address        (inst[19:15]),
-        .rs2_address        (inst[24:20]),
+        .rd_address         (inst_rd),
+        .rs1_address        (inst_rs1),
+        .rs2_address        (inst_rs2),
         .rd_data            (rd_data),
         .rs1_data           (rs1_data),
         .rs2_data           (rs2_data)
