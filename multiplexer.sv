@@ -1,24 +1,7 @@
-///////////////////////////////////////////////////////////////////////////////
-//                   RISC-V SiMPLE - Multiplexador Genérico                  //
-//                                                                           //
-//        Código fonte em https://github.com/arthurbeggs/riscv-simple        //
-//                            BSD 3-Clause License                           //
-//                                                                           //
-//             Multiplexer Parametrizado criado por jakobjones               //
-//      Fonte: https://alteraforum.com/forum/showthread.php?t=22519          //
-//             Modificado por @arthurbeggs para Verilog-2001                 //
-///////////////////////////////////////////////////////////////////////////////
-//                               MODO DE USO                                 //
-//                                                                           //
-// multiplexer #(                                                            //
-//     .WIDTH(32),     // Largura da palavra                                 //
-//     .CHANNELS(2)    // Quantidade de entradas SEMPRE IGUAL a 2^n          //
-// ) nome_do_mux (                                                           //
-//     .in_bus({in1, in2, ...}),   // Sinais de entrada concatenados         //
-//     .sel(sel_signal),           // Sinal de seleção de entrada            //
-//     .out(out_signal)            // Sinal de saída                         //
-// );                                                                        //
-///////////////////////////////////////////////////////////////////////////////
+// RISC-V SiMPLE SV -- multiplexer module
+// BSD 3-Clause License
+// (c) 2017-2019, Arthur Matos, Marcus Vinicius Lamar, Universidade de Brasília,
+//                Marek Materzok, University of Wrocław
 
 `ifndef CONFIG_AND_CONSTANTS
     `include "config.sv"

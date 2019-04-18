@@ -1,9 +1,7 @@
-///////////////////////////////////////////////////////////////////////////////
-//         RISC-V SiMPLE - Unidade Lógica Aritmética de 32 e 64 bits         //
-//                                                                           //
-//        Código fonte em https://github.com/arthurbeggs/riscv-simple        //
-//                            BSD 3-Clause License                           //
-///////////////////////////////////////////////////////////////////////////////
+// RISC-V SiMPLE SV -- ALU module
+// BSD 3-Clause License
+// (c) 2017-2019, Arthur Matos, Marcus Vinicius Lamar, Universidade de Brasília,
+//                Marek Materzok, University of Wrocław
 
 `ifndef CONFIG_AND_CONSTANTS
     `include "config.sv"

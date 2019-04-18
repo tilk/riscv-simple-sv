@@ -1,3 +1,8 @@
+// RISC-V SiMPLE SV -- data memory model
+// BSD 3-Clause License
+// (c) 2017-2019, Arthur Matos, Marcus Vinicius Lamar, Universidade de Brasília,
+//                Marek Materzok, University of Wrocław
+
 module data_memory (
 	address,
 	byteena,
@@ -15,10 +20,7 @@ module data_memory (
     
     reg [31:0] mem[0:2**15-1];
 
-//    reg [13:0] addr_copy;
     reg [31:0] to_write;
-
-//    always @(posedge clock) addr_copy <= address;
 
     assign q = mem[address];
 

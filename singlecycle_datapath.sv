@@ -1,9 +1,8 @@
-///////////////////////////////////////////////////////////////////////////////
-//                 RISC-V SiMPLE - Caminho de Dados Uniciclo                 //
-//                                                                           //
-//        Código fonte em https://github.com/arthurbeggs/riscv-simple        //
-//                            BSD 3-Clause License                           //
-///////////////////////////////////////////////////////////////////////////////
+// RISC-V SiMPLE SV -- data path
+// BSD 3-Clause License
+// (c) 2017-2019, Arthur Matos, Marcus Vinicius Lamar, Universidade de Brasília,
+//                Marek Materzok, University of Wrocław
+
 
 `ifndef CONFIG_AND_CONSTANTS
     `include "config.sv"
