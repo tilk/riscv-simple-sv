@@ -13,27 +13,25 @@ module singlecycle_datapath (
     input  clock,
     input  reset,
 
-    input  [31:0] data_mem_data_fetched,    // Dado recebido da memória de dados
-    output data_mem_read_enable,            // Habilita leitura da mem de dados
-    output data_mem_write_enable,           // Habilita escrita da mem de dados
-    output [31:0] data_mem_address,         // Endereço desejado da mem de dados
-    output [31:0] data_mem_write_data,      // Dado a ser escrito na mem de dados
-    output [2:0]  data_mem_format,          // Largura do dado a ser lido/escrito
+    input  [31:0] data_mem_data_fetched,
+    output [31:0] data_mem_address,
+    output [31:0] data_mem_write_data,
+    output [2:0]  data_mem_format,
 
-    input  [31:0] inst,     // Instrução atual
-    output [31:0] pc        // Program Counter atual
-);
-
+    input  [31:0] inst,
+    output [31:0] pc,
+    
 // Sinais de controle
-wire pc_write_enable;               // Habilita escrita de PC
-wire regfile_write_enable;          // Habilita escrita no regfile
-wire alu_operand_a_select;          // Seleciona a entrada A da ULA
-wire alu_operand_b_select;          // Seleciona a entrada B da ULA
-wire [2:0] alu_op_type;             // Seleciona a funcionalidade da ULA
-wire jal_enable;                    // JAL
-wire jalr_enable;                   // JALR
-wire branch_enable;                 // Branching
-wire [2:0] reg_writeback_select;    // Seleciona a entrada de escrita do regfile
+    input pc_write_enable,
+    input regfile_write_enable,
+    input alu_operand_a_select,
+    input alu_operand_b_select,
+    input jal_enable,
+    input jalr_enable,
+    input branch_enable,
+    input [2:0] alu_op_type,
+    input [2:0] reg_writeback_select
+);
 
 // Sinal do Imediato
 wire [31:0] immediate;
@@ -174,25 +172,6 @@ regfile regfile(
     .rd_data            (rd_data),
     .rs1_data           (rs1_data),
     .rs2_data           (rs2_data)
-);
-
-singlecycle_control singlecycle_control(
-    .inst_opcode            (inst[6:0]),
-    .inst_bit_30            (inst[30]),
-`ifdef M_MODULE
-    .inst_bit_25            (inst[25]),
-`endif
-    .pc_write_enable        (pc_write_enable),
-    .regfile_write_enable   (regfile_write_enable),
-    .alu_operand_a_select   (alu_operand_a_select),
-    .alu_operand_b_select   (alu_operand_b_select),
-    .alu_op_type            (alu_op_type),
-    .jal_enable             (jal_enable),
-    .jalr_enable            (jalr_enable),
-    .branch_enable          (branch_enable),
-    .data_mem_read_enable   (data_mem_read_enable),
-    .data_mem_write_enable  (data_mem_write_enable),
-    .reg_writeback_select   (reg_writeback_select)
 );
 
 endmodule

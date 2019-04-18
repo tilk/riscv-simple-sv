@@ -73,7 +73,7 @@ always @ (*) begin
             jal_enable              = 1'b0;
             jalr_enable             = 1'b0;
             branch_enable           = 1'b0;
-            data_mem_read_enable    = 1'b0;
+            data_mem_read_enable    = 1'b1;
             data_mem_write_enable   = 1'b0;
             reg_writeback_select    = 3'b001;
         end
