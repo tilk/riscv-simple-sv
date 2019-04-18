@@ -21,7 +21,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 `ifndef CONFIG_AND_CONSTANTS
-    `include "config.v"
+    `include "config.sv"
 `endif
 
 module multiplexer #(

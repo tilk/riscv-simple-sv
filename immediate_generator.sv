@@ -6,7 +6,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 `ifndef CONFIG_AND_CONSTANTS
-    `include "config.v"
+    `include "config.sv"
 `endif
 
 module immediate_generator (
