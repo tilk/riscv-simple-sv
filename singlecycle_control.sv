@@ -178,17 +178,14 @@ module singlecycle_control (
                 data_mem_write_enable   = 1'b0;
                 reg_writeback_select    = 3'b000;
     
-                if (inst_bit_30 == 1'b1) begin
+                if (inst_bit_30 == 1'b1)
                     alu_op_type             = 3'b011;
-                end
     `ifdef M_MODULE
-                else if (inst_bit_25 == 1'b1) begin
+                else if (inst_bit_25 == 1'b1)
                     alu_op_type             = 3'b101;
-                end
     `endif
-                else begin
+                else
                     alu_op_type             = 3'b010;
-                end
             end
     
             `OPCODE_LUI:
