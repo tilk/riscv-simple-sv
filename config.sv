@@ -124,6 +124,33 @@
 `define ALU_REM     5'b10001
 `define ALU_REMU    5'b10010
 
+// ALU op types
+`define CTL_ALU_ZERO        3'b000
+`define CTL_ALU_ADD         3'b001
+`define CTL_ALU_DEFAULT     3'b010
+`define CTL_ALU_SECONDARY   3'b011
+`define CTL_ALU_BRANCH      3'b100
+`define CTL_ALU_M_EXTENSION 3'b101
+
+// Register data sources
+`define CTL_WRITEBACK_ALU   3'b000
+`define CTL_WRITEBACK_DATA  3'b001
+`define CTL_WRITEBACK_PC4   3'b010
+`define CTL_WRITEBACK_IMM   3'b011
+
+// ALU 1st operand source
+`define CTL_ALU_A_RS1   1'b0
+`define CTL_ALU_A_PC    1'b1
+
+// ALU 2nd operand source
+`define CTL_ALU_B_RS2   1'b0
+`define CTL_ALU_B_IMM   1'b1
+
+// PC source
+`define CTL_PC_PC4      2'b00
+`define CTL_PC_PC_IMM   2'b01
+`define CTL_PC_RS1_IMM  2'b10
+
 //////////////////////////////////////////
 //              Addresses               //
 //////////////////////////////////////////

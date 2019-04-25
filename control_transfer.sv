@@ -17,32 +17,21 @@ module control_transfer (
     output [1:0] next_pc_select
 );
 
-    // Tabela de entradas do multiplexador do próximo PC
-    // 2'b00: PC + 4
-    // 2'b01: PC + Imediato
-    // 2'b10: {(rs1_data + imm)[31:1], 1'b0}
-    // Planejado:
-    // 2'b11: Nível privilegiado (máquina)
-    
     always_comb begin
-        if (branch_enable) begin
-            next_pc_select = 2'b00;
+        next_pc_select = `CTL_PC_PC4;
+        if (branch_enable)
             case (inst_funct3)
-                `FUNCT3_BRANCH_EQ:  next_pc_select = result_equal_zero ? 2'b01 : 2'b00;
-                `FUNCT3_BRANCH_NE:  next_pc_select = result_equal_zero ? 2'b00 : 2'b01;
-                `FUNCT3_BRANCH_LT:  next_pc_select = result_equal_zero ? 2'b00 : 2'b01;
-                `FUNCT3_BRANCH_GE:  next_pc_select = result_equal_zero ? 2'b01 : 2'b00;
-                `FUNCT3_BRANCH_LTU: next_pc_select = result_equal_zero ? 2'b00 : 2'b01;
-                `FUNCT3_BRANCH_GEU: next_pc_select = result_equal_zero ? 2'b01 : 2'b00;
-                default:            next_pc_select = 2'b00;
+                `FUNCT3_BRANCH_EQ:  next_pc_select = result_equal_zero ? `CTL_PC_PC_IMM : `CTL_PC_PC4;
+                `FUNCT3_BRANCH_NE:  next_pc_select = result_equal_zero ? `CTL_PC_PC4    : `CTL_PC_PC_IMM;
+                `FUNCT3_BRANCH_LT:  next_pc_select = result_equal_zero ? `CTL_PC_PC4    : `CTL_PC_PC_IMM;
+                `FUNCT3_BRANCH_GE:  next_pc_select = result_equal_zero ? `CTL_PC_PC_IMM : `CTL_PC_PC4;
+                `FUNCT3_BRANCH_LTU: next_pc_select = result_equal_zero ? `CTL_PC_PC4    : `CTL_PC_PC_IMM;
+                `FUNCT3_BRANCH_GEU: next_pc_select = result_equal_zero ? `CTL_PC_PC_IMM : `CTL_PC_PC4;
             endcase
-        end
         else if (jal_enable)
-            next_pc_select = 2'b01;
+            next_pc_select = `CTL_PC_PC_IMM;
         else if (jalr_enable)
-            next_pc_select = 2'b10;
-        else
-            next_pc_select = 2'b00;
+            next_pc_select = `CTL_PC_RS1_IMM;
     end
 
 endmodule

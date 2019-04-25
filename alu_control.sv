@@ -13,14 +13,6 @@ module alu_control (
     output [4:0] alu_function
 );
 
-    // Tabela de tipo de operações da ULA (alu_op_type[2:0])
-    // 3'b000: Zero
-    // 3'b001: Add
-    // 3'b010: Função default
-    // 3'b011: Função secundária (SUB, SRA, ...)
-    // 3'b100: Branches (comparações)
-    // 3'b101: Extensão M
-    
     logic [4:0] default_funct;
     logic [4:0] secondary_funct;
     logic [4:0] branch_funct;
@@ -31,15 +23,14 @@ module alu_control (
     always_comb begin
         alu_function = `ALU_ZERO;
         case (alu_op_type)
-            3'b000: alu_function = `ALU_ZERO;
-            3'b001: alu_function = `ALU_ADD;
-            3'b010: alu_function = default_funct;
-            3'b011: alu_function = secondary_funct;
-            3'b100: alu_function = branch_funct;
+            `CTL_ALU_ZERO: alu_function = `ALU_ZERO;
+            `CTL_ALU_ADD: alu_function = `ALU_ADD;
+            `CTL_ALU_DEFAULT: alu_function = default_funct;
+            `CTL_ALU_SECONDARY: alu_function = secondary_funct;
+            `CTL_ALU_BRANCH: alu_function = branch_funct;
     `ifdef M_MODULE
-                3'b101: alu_function = m_extension_funct;
+            `CTL_ALU_M_EXTENSION: alu_function = m_extension_funct;
     `endif
-            default: alu_function = `ALU_ZERO;
         endcase
     end
     
@@ -63,7 +54,6 @@ module alu_control (
         case (inst_funct3)
             `FUNCT3_ALU_ADD_SUB:    secondary_funct = `ALU_SUB;
             `FUNCT3_ALU_SHIFTR:     secondary_funct = `ALU_SRA;
-            default:                secondary_funct = `ALU_ZERO;
         endcase
     end
     
@@ -76,7 +66,6 @@ module alu_control (
             `FUNCT3_BRANCH_GE:  branch_funct = `ALU_SLT;
             `FUNCT3_BRANCH_LTU: branch_funct = `ALU_SLTU;
             `FUNCT3_BRANCH_GEU: branch_funct = `ALU_SLTU;
-            default:            branch_funct = `ALU_ZERO;
         endcase
     end
     
@@ -92,7 +81,6 @@ module alu_control (
                 `FUNCT3_ALU_DIVU:   m_extension_funct = `ALU_DIVU;
                 `FUNCT3_ALU_REM:    m_extension_funct = `ALU_REM;
                 `FUNCT3_ALU_REMU:   m_extension_funct = `ALU_REMU;
-                default:            m_extension_funct = `ALU_ZERO;
             endcase
         end
     `endif
