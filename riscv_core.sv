@@ -41,6 +41,9 @@ module riscv_core (
     logic [4:0] inst_rs1;
     logic [4:0] inst_rs2;
     logic [31:0] immediate;
+    logic [1:0] next_pc_select;
+    logic [4:0] alu_function;
+    logic alu_result_equal_zero;
 
     assign bus_format = inst_funct3;
 
@@ -51,7 +54,6 @@ module riscv_core (
         .data_mem_address       (bus_address),
         .data_mem_write_data    (bus_write_data),
         .immediate              (immediate),
-        .inst_funct3            (inst_funct3),
         .inst_rd                (inst_rd),
         .inst_rs1               (inst_rs1),
         .inst_rs2               (inst_rs2),
@@ -60,11 +62,10 @@ module riscv_core (
         .regfile_write_enable   (regfile_write_enable),
         .alu_operand_a_select   (alu_operand_a_select),
         .alu_operand_b_select   (alu_operand_b_select),
-        .alu_op_type            (alu_op_type),
-        .jal_enable             (jal_enable),
-        .jalr_enable            (jalr_enable),
-        .branch_enable          (branch_enable),
-        .reg_writeback_select   (reg_writeback_select)
+        .reg_writeback_select   (reg_writeback_select),
+        .next_pc_select         (next_pc_select),
+        .alu_result_equal_zero  (alu_result_equal_zero),
+        .alu_function           (alu_function)
     );
 
     instruction_decoder instruction_decoder(
@@ -119,6 +120,21 @@ module riscv_core (
         .address                (pc),
         .data_fetched           (inst)
     );
-
+    
+    control_transfer control_transfer (
+        .branch_enable      (branch_enable),
+        .jal_enable         (jal_enable),
+        .jalr_enable        (jalr_enable),
+        .result_equal_zero  (alu_result_equal_zero),
+        .inst_funct3        (inst_funct3),
+        .next_pc_select     (next_pc_select)
+    );
+    
+    alu_control alu_control(
+        .alu_op_type        (alu_op_type),
+        .inst_funct3        (inst_funct3),
+        .alu_function       (alu_function)
+    );
+    
 endmodule
 

@@ -17,22 +17,21 @@ module singlecycle_datapath (
     output [31:0] data_mem_write_data,
 
     input  [31:0] immediate,
-    input  [2:0]  inst_funct3,
     input  [4:0]  inst_rd,
     input  [4:0]  inst_rs1,
     input  [4:0]  inst_rs2,
     output [31:0] pc,
+
+    output alu_result_equal_zero,
     
     // control signals
     input pc_write_enable,
     input regfile_write_enable,
     input alu_operand_a_select,
     input alu_operand_b_select,
-    input jal_enable,
-    input jalr_enable,
-    input branch_enable,
-    input [2:0] alu_op_type,
-    input [2:0] reg_writeback_select
+    input [2:0] reg_writeback_select,
+    input [1:0] next_pc_select,
+    input [4:0] alu_function
 );
 
     // register file inputs and outputs
@@ -41,17 +40,14 @@ module singlecycle_datapath (
     logic [31:0] rs2_data;
     
     // program counter signals
-    logic [1:0]  next_pc_select;
     logic [31:0] pc_plus_4;
     logic [31:0] pc_plus_immediate;
     logic [31:0] next_pc;
     
     // ALU signals
-    logic [4:0]  alu_function;
     logic [31:0] alu_operand_a;
     logic [31:0] alu_operand_b;
     logic [31:0] alu_result;
-    logic alu_result_equal_zero;
     
     // memory signals
     assign data_mem_address     = alu_result;
@@ -79,21 +75,6 @@ module singlecycle_datapath (
         .operand_b          (alu_operand_b),
         .result             (alu_result),
         .result_equal_zero  (alu_result_equal_zero)
-    );
-    
-    alu_control alu_control(
-        .alu_op_type        (alu_op_type),
-        .inst_funct3        (inst_funct3),
-        .alu_function       (alu_function)
-    );
-    
-    control_transfer control_transfer (
-        .branch_enable      (branch_enable),
-        .jal_enable         (jal_enable),
-        .jalr_enable        (jalr_enable),
-        .result_equal_zero  (alu_result_equal_zero),
-        .inst_funct3        (inst_funct3),
-        .next_pc_select     (next_pc_select)
     );
     
     multiplexer4 #(
