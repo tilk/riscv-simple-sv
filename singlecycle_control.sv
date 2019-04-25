@@ -224,7 +224,7 @@ module singlecycle_control (
                 regfile_write_enable    = 1'b0;
                 alu_operand_a_select    = 1'b0;
                 alu_operand_b_select    = 1'b0;
-                alu_op_type             = 3'b001;
+                alu_op_type             = 3'b100;
                 jal_enable              = 1'b0;
                 jalr_enable             = 1'b0;
                 branch_enable           = 1'b1;
