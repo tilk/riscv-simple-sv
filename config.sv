@@ -138,7 +138,7 @@
 `define TEXT_END        `TEXT_BEGIN + `TEXT_WIDTH - 1
 
 // Data memory
-`define DATA_BEGIN      32'h1001_0000
+`define DATA_BEGIN      32'h8000_0000
 `define DATA_BITS       17
 `define DATA_WIDTH      2**`DATA_BITS
 `define DATA_END        `DATA_BEGIN + `DATA_WIDTH - 1
