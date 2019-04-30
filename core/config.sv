@@ -21,6 +21,9 @@
 // Enable debugging signals
 `define DEBUG
 
+// `define TEXT_HEX  "test.rom.vh"
+// `define DATA_HEX  "test.ram.vh"
+
 //////////////////////////////////////////
 //              Constants               //
 //////////////////////////////////////////

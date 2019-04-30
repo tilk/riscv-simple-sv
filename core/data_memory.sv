@@ -27,8 +27,10 @@ module data_memory (
             if (byteena[2]) mem[{address,2'd2}] <= data[16+:8];
             if (byteena[3]) mem[{address,2'd3}] <= data[24+:8];
         end
-    
-    initial $readmemh("test_data.hex", mem);
+
+`ifdef DATA_HEX
+    initial $readmemh(`DATA_HEX, mem);
+`endif
 
 endmodule
 
