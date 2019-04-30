@@ -13,9 +13,9 @@ module text_memory (
 	output [31:0] q
 );
 
-    reg [31:0] mem[0:2**(`TEXT_BITS-2)-1];
+    reg [7:0] mem[0:2**`TEXT_BITS-1];
 
-    assign q = mem[address];
+    assign q = { mem[{address,2'd3}], mem[{address,2'd2}], mem[{address,2'd1}], mem[{address,2'd0}] };
 
     initial $readmemh("test.hex", mem);
 

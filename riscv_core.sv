@@ -26,10 +26,6 @@ module riscv_core (
     logic regfile_write_enable;
     logic alu_operand_a_select;
     logic alu_operand_b_select;
-    logic jal_enable;
-    logic jalr_enable;
-    logic branch_enable;
-    logic [2:0] alu_op_type;
     logic [2:0] reg_writeback_select;
     logic [6:0] inst_opcode;
     logic [2:0] inst_funct3;
@@ -86,23 +82,23 @@ module riscv_core (
         .immediate              (immediate)
     );
     
-    singlecycle_control singlecycle_control(
+    singlecycle_ctlpath singlecycle_ctlpath(
         .inst_opcode            (inst_opcode),
+        .inst_funct3            (inst_funct3),
         .inst_bit_30            (inst_bit_30),
     `ifdef M_MODULE
         .inst_bit_25            (inst_bit_25),
     `endif
+        .alu_result_equal_zero  (alu_result_equal_zero),
         .pc_write_enable        (pc_write_enable),
         .regfile_write_enable   (regfile_write_enable),
         .alu_operand_a_select   (alu_operand_a_select),
         .alu_operand_b_select   (alu_operand_b_select),
-        .alu_op_type            (alu_op_type),
-        .jal_enable             (jal_enable),
-        .jalr_enable            (jalr_enable),
-        .branch_enable          (branch_enable),
         .data_mem_read_enable   (bus_read_enable),
         .data_mem_write_enable  (bus_write_enable),
-        .reg_writeback_select   (reg_writeback_select)
+        .reg_writeback_select   (reg_writeback_select),
+        .alu_function           (alu_function),
+        .next_pc_select         (next_pc_select)
     );
     
     data_memory_interface data_memory_interface (
@@ -119,21 +115,6 @@ module riscv_core (
         .clock                  (clock),
         .address                (pc),
         .data_fetched           (inst)
-    );
-    
-    control_transfer control_transfer (
-        .branch_enable      (branch_enable),
-        .jal_enable         (jal_enable),
-        .jalr_enable        (jalr_enable),
-        .result_equal_zero  (alu_result_equal_zero),
-        .inst_funct3        (inst_funct3),
-        .next_pc_select     (next_pc_select)
-    );
-    
-    alu_control alu_control(
-        .alu_op_type        (alu_op_type),
-        .inst_funct3        (inst_funct3),
-        .alu_function       (alu_function)
     );
     
 endmodule
