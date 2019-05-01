@@ -3,9 +3,8 @@
 // (c) 2017-2019, Arthur Matos, Marcus Vinicius Lamar, Universidade de Brasília,
 //                Marek Materzok, University of Wrocław
 
-`ifndef CONFIG_AND_CONSTANTS
-    `include "config.sv"
-`endif
+`include "config.sv"
+`include "constants.sv"
 
 module multiplexer4 #(
     parameter  WIDTH = 32

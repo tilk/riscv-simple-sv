@@ -3,6 +3,9 @@
 // (c) 2017-2019, Arthur Matos, Marcus Vinicius Lamar, Universidade de Brasília,
 //                Marek Materzok, University of Wrocław
 
+`include "config.sv"
+`include "constants.sv"
+
 module instruction_decoder(
     input [31:0] inst,
     output [6:0] inst_opcode,
