@@ -7,11 +7,11 @@
 `include "constants.sv"
 
 module alu (
-    input  [4:0] alu_function,
-    input  [31:0] operand_a,
-    input  [31:0] operand_b,
-    output [31:0] result,
-    output result_equal_zero
+    input        [4:0]  alu_function,
+    input signed [31:0] operand_a,
+    input signed [31:0] operand_b,
+    output       [31:0] result,
+    output              result_equal_zero
 );
 
     `ifdef M_MODULE
