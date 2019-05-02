@@ -20,7 +20,7 @@ module alu (
         logic [63:0] signed_unsigned_multiplication;
     `endif
     
-    assign result_equal_zero = (result == 31'b0);
+    assign result_equal_zero = (result == 32'b0);
     
     always_comb begin
         result = `ZERO;
@@ -31,8 +31,8 @@ module alu (
             `ALU_SLL:   result = operand_a <<   operand_b[4:0];
             `ALU_SRL:   result = operand_a >>   operand_b[4:0];
             `ALU_SRA:   result = operand_a >>>  operand_b[4:0];
-            `ALU_SLT:   result = operand_a <    operand_b;
-            `ALU_SLTU:  result = $unsigned(operand_a) < $unsigned(operand_b);
+            `ALU_SLT:   result = {31'b0, operand_a < operand_b};
+            `ALU_SLTU:  result = {31'b0, $unsigned(operand_a) < $unsigned(operand_b)};
             `ALU_XOR:   result = operand_a ^    operand_b;
             `ALU_OR:    result = operand_a |    operand_b;
             `ALU_AND:   result = operand_a &    operand_b;

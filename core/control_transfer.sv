@@ -26,6 +26,7 @@ module control_transfer (
                 `FUNCT3_BRANCH_GE:  next_pc_select = result_equal_zero ? `CTL_PC_PC_IMM : `CTL_PC_PC4;
                 `FUNCT3_BRANCH_LTU: next_pc_select = result_equal_zero ? `CTL_PC_PC4    : `CTL_PC_PC_IMM;
                 `FUNCT3_BRANCH_GEU: next_pc_select = result_equal_zero ? `CTL_PC_PC_IMM : `CTL_PC_PC4;
+                default: next_pc_select = 2'bx;
             endcase
         else if (jal_enable)
             next_pc_select = `CTL_PC_PC_IMM;

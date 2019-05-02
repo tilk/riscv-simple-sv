@@ -22,7 +22,9 @@ module instruction_decoder(
     assign inst_opcode = inst[6:0];
     assign inst_funct3 = inst[14:12];
     assign inst_bit_30 = inst[30];
+    `ifdef M_MODULE
     assign inst_bit_25 = inst[25];
+    `endif
     assign inst_rd     = inst[11:7];
     assign inst_rs1    = inst[19:15];
     assign inst_rs2    = inst[24:20];

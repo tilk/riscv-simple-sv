@@ -26,7 +26,7 @@ module regfile (
     
     initial
         for (i = 0; i <= 31; i = i + 1) begin
-            register[i] <= 32'b0;
+            register[i] = 32'b0;
         end
     
     assign rs1_data = register[rs1_address];

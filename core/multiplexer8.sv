@@ -17,7 +17,7 @@ module multiplexer8 #(
     input  [WIDTH-1:0] in5,
     input  [WIDTH-1:0] in6,
     input  [WIDTH-1:0] in7,
-    input  [1:0]       sel,
+    input  [2:0]       sel,
     output [WIDTH-1:0] out
 );
 

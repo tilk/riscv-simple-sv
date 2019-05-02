@@ -194,7 +194,21 @@ module singlecycle_control (
             //     data_mem_write_enable   = 1'b0;
             //     reg_writeback_select    = 3'b000;
             // end
-    
+            
+            default:
+            begin
+                pc_write_enable         = 1'bx;
+                regfile_write_enable    = 1'bx;
+                alu_operand_a_select    = 1'bx;
+                alu_operand_b_select    = 1'bx;
+                alu_op_type             = 3'bx;
+                jal_enable              = 1'bx;
+                jalr_enable             = 1'bx;
+                branch_enable           = 1'bx;
+                data_mem_read_enable    = 1'bx;
+                data_mem_write_enable   = 1'bx;
+                reg_writeback_select    = 3'bx;
+            end
         endcase
     end
 

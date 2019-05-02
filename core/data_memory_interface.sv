@@ -54,7 +54,7 @@ module data_memory_interface (
        if (data_format[2] == 0) begin
            sign_fix = 32'b0;
            case (data_format[1:0])
-               2'b00:   sign_fix = {{22{position_fix[7]}}, position_fix[7:0]};
+               2'b00:   sign_fix = {{24{position_fix[7]}}, position_fix[7:0]};
                2'b01:   sign_fix = {{16{position_fix[15]}}, position_fix[15:0]};
                2'b10:   sign_fix = position_fix[31:0];
                default: sign_fix = 32'b0;
