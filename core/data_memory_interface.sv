@@ -28,7 +28,7 @@ module data_memory_interface (
         .address    (address[16:2]),
         .byteena    (translated_byte_enable),
         .clock      (clock),
-        .data       (write_data),
+        .data       (write_data << (8*address[1:0])),
         .wren       (write_enable),
         .q          (fetched)
     );
@@ -46,7 +46,7 @@ module data_memory_interface (
     
     // correct for unaligned accesses
     always_comb begin
-       position_fix = fetched >> address[1:0];
+       position_fix = fetched >> (8*address[1:0]);
     end
     
     // sign-extend if necessary
