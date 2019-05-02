@@ -51,16 +51,12 @@ module data_memory_interface (
     
     // sign-extend if necessary
     always_comb begin
-       if (data_format[2] == 0) begin
-           sign_fix = 32'b0;
-           case (data_format[1:0])
-               2'b00:   sign_fix = {{24{position_fix[7]}}, position_fix[7:0]};
-               2'b01:   sign_fix = {{16{position_fix[15]}}, position_fix[15:0]};
-               2'b10:   sign_fix = position_fix[31:0];
-               default: sign_fix = 32'b0;
-           endcase
-       end
-       else             sign_fix = position_fix;
+       case (data_format[1:0])
+           2'b00:   sign_fix = {{24{~data_format[2] & position_fix[7]}}, position_fix[7:0]};
+           2'b01:   sign_fix = {{16{~data_format[2] & position_fix[15]}}, position_fix[15:0]};
+           2'b10:   sign_fix = position_fix[31:0];
+           default: sign_fix = 32'bx;
+       endcase
     end
     
     always_comb begin
