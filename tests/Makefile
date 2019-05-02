@@ -20,7 +20,7 @@ all: ${VHS}
 	${OBJCOPY} -O verilog $< $@ -j .init -j .text --change-addresses -0x400000
 
 %.data.vh: %.elf
-	${OBJCOPY} -O verilog $< $@ -j .data -j .eh_frame -j .fini_array -j .init_array --change-addresses -0x8000000
+	${OBJCOPY} -O verilog $< $@ -j .data -j .eh_frame -j .fini_array -j .init_array --change-addresses -0x80000000
 
 clean:
 	rm -f ${OBJS} ${ELFS} ${VHS}
