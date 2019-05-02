@@ -110,12 +110,11 @@
 `define ALU_REMU    5'b10010
 
 // ALU op types
-`define CTL_ALU_ZERO        3'b000
-`define CTL_ALU_ADD         3'b001
-`define CTL_ALU_DEFAULT     3'b010
-`define CTL_ALU_SECONDARY   3'b011
-`define CTL_ALU_BRANCH      3'b100
-`define CTL_ALU_M_EXTENSION 3'b101
+`define CTL_ALU_ZERO   3'b000
+`define CTL_ALU_ADD    3'b001
+`define CTL_ALU_OP     3'b010
+`define CTL_ALU_OP_IMM 3'b011
+`define CTL_ALU_BRANCH 3'b100
 
 // Register data sources
 `define CTL_WRITEBACK_ALU   3'b000

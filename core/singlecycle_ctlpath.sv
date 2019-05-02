@@ -8,12 +8,9 @@
 
 module singlecycle_ctlpath (
     input  [6:0] inst_opcode,
-	input  [2:0] inst_funct3,
-    input  inst_bit_30,             // for ALU op selection
-`ifdef M_MODULE
-    input  inst_bit_25,             // for multiplication op
-`endif
-	input  alu_result_equal_zero,
+    input  [2:0] inst_funct3,
+    input  [6:0] inst_funct7,
+    input  alu_result_equal_zero,
 
     output pc_write_enable,
     output regfile_write_enable,
@@ -22,21 +19,17 @@ module singlecycle_ctlpath (
     output data_mem_read_enable,
     output data_mem_write_enable,
     output [2:0] reg_writeback_select,
-	output [4:0] alu_function,
+    output [4:0] alu_function,
     output [1:0] next_pc_select
 );
 
-	logic jal_enable;
-	logic jalr_enable;
-	logic branch_enable;
+    logic jal_enable;
+    logic jalr_enable;
+    logic branch_enable;
     logic [2:0] alu_op_type;
 
     singlecycle_control singlecycle_control(
         .inst_opcode            (inst_opcode),
-        .inst_bit_30            (inst_bit_30),
-    `ifdef M_MODULE
-        .inst_bit_25            (inst_bit_25),
-    `endif
         .pc_write_enable        (pc_write_enable),
         .regfile_write_enable   (regfile_write_enable),
         .alu_operand_a_select   (alu_operand_a_select),
@@ -62,6 +55,7 @@ module singlecycle_ctlpath (
     alu_control alu_control(
         .alu_op_type        (alu_op_type),
         .inst_funct3        (inst_funct3),
+        .inst_funct7        (inst_funct7),
         .alu_function       (alu_function)
     );
 

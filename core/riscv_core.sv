@@ -28,10 +28,7 @@ module riscv_core (
     logic [2:0] reg_writeback_select;
     logic [6:0] inst_opcode;
     logic [2:0] inst_funct3;
-    logic inst_bit_30;
-    `ifdef M_MODULE
-    logic inst_bit_25;
-    `endif
+    logic [6:0] inst_funct7;
     logic [4:0] inst_rd;
     logic [4:0] inst_rs1;
     logic [4:0] inst_rs2;
@@ -66,10 +63,7 @@ module riscv_core (
     instruction_decoder instruction_decoder(
         .inst                   (inst),
         .inst_opcode            (inst_opcode),
-        .inst_bit_30            (inst_bit_30),
-    `ifdef M_MODULE
-        .inst_bit_25            (inst_bit_25),
-    `endif
+        .inst_funct7            (inst_funct7),
         .inst_funct3            (inst_funct3),
         .inst_rd                (inst_rd),
         .inst_rs1               (inst_rs1),
@@ -84,10 +78,7 @@ module riscv_core (
     singlecycle_ctlpath singlecycle_ctlpath(
         .inst_opcode            (inst_opcode),
         .inst_funct3            (inst_funct3),
-        .inst_bit_30            (inst_bit_30),
-    `ifdef M_MODULE
-        .inst_bit_25            (inst_bit_25),
-    `endif
+        .inst_funct7            (inst_funct7),
         .alu_result_equal_zero  (alu_result_equal_zero),
         .pc_write_enable        (pc_write_enable),
         .regfile_write_enable   (regfile_write_enable),

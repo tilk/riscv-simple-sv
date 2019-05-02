@@ -8,11 +8,6 @@
 
 module singlecycle_control (
     input  [6:0] inst_opcode,
-    input  inst_bit_30,             // for ALU op selection
-`ifdef M_MODULE
-    input  inst_bit_25,             // for multiplication op
-`endif
-
     output pc_write_enable,
     output regfile_write_enable,
     output alu_operand_a_select,
@@ -75,7 +70,7 @@ module singlecycle_control (
                 regfile_write_enable    = 1'b1;
                 alu_operand_a_select    = `CTL_ALU_A_RS1;
                 alu_operand_b_select    = `CTL_ALU_B_IMM;
-                alu_op_type             = `CTL_ALU_DEFAULT;
+                alu_op_type             = `CTL_ALU_OP_IMM;
                 reg_writeback_select    = `CTL_WRITEBACK_ALU;
             end
     
@@ -117,15 +112,7 @@ module singlecycle_control (
                 alu_operand_a_select    = `CTL_ALU_A_RS1;
                 alu_operand_b_select    = `CTL_ALU_B_RS2;
                 reg_writeback_select    = `CTL_WRITEBACK_ALU;
-    
-                if (inst_bit_30 == 1'b1)
-                    alu_op_type             = `CTL_ALU_SECONDARY;
-    `ifdef M_MODULE
-                else if (inst_bit_25 == 1'b1)
-                    alu_op_type             = `CTL_ALU_M_EXTENSION;
-    `endif
-                else
-                    alu_op_type             = `CTL_ALU_DEFAULT;
+                alu_op_type             = `CTL_ALU_OP;
             end
     
             `OPCODE_LUI:
