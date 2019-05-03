@@ -7,8 +7,8 @@
 `include "constants.sv"
 
 module immediate_generator (
-    input  [31:0] inst,
-    output [31:0] immediate
+    input        [31:0] inst,
+    output logic [31:0] immediate
 );
 
     logic [63:0] imm_I, imm_S, imm_B, imm_U, imm_J;

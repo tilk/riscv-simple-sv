@@ -19,12 +19,11 @@ module text_memory_interface (
         .clock      (clock),
         .q          (fetched)
     );
-    
-    always_comb
-        if (address >= `TEXT_BEGIN && address <= `TEXT_END)
-            data_fetched = fetched;
-        else
-            data_fetched = 32'hxxxxxxxx;
+   
+    assign data_fetched = 
+        address >= `TEXT_BEGIN && address <= `TEXT_END
+        ? fetched
+        : 32'hxxxxxxxx;
 
 endmodule
 

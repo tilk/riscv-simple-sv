@@ -7,10 +7,10 @@
 `include "constants.sv"
 
 module alu_control (
-    input  [2:0] alu_op_type,
-    input  [2:0] inst_funct3,
-    input  [6:0] inst_funct7,
-    output [4:0] alu_function
+    input        [2:0] alu_op_type,
+    input        [2:0] inst_funct3,
+    input        [6:0] inst_funct7,
+    output logic [4:0] alu_function
 );
 
     logic [4:0] default_funct;

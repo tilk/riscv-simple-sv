@@ -13,7 +13,7 @@ module control_transfer (
     input  result_equal_zero,
     input  [2:0] inst_funct3,
 
-    output [1:0] next_pc_select
+    output logic [1:0] next_pc_select
 );
 
     always_comb begin

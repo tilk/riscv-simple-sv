@@ -8,17 +8,17 @@
 
 module singlecycle_control (
     input  [6:0] inst_opcode,
-    output pc_write_enable,
-    output regfile_write_enable,
-    output alu_operand_a_select,
-    output alu_operand_b_select,
-    output [2:0] alu_op_type,
-    output jal_enable,
-    output jalr_enable,
-    output branch_enable,
-    output data_mem_read_enable,
-    output data_mem_write_enable,
-    output [2:0] reg_writeback_select
+    output logic pc_write_enable,
+    output logic regfile_write_enable,
+    output logic alu_operand_a_select,
+    output logic alu_operand_b_select,
+    output logic [2:0] alu_op_type,
+    output logic jal_enable,
+    output logic jalr_enable,
+    output logic branch_enable,
+    output logic data_mem_read_enable,
+    output logic data_mem_write_enable,
+    output logic [2:0] reg_writeback_select
 );
 
     always_comb begin

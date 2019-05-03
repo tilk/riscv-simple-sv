@@ -12,7 +12,7 @@ module program_counter (
     input  write_enable,
     input  [31:0] next_pc,
 
-    output [31:0] pc
+    output logic [31:0] pc
 );
 
    initial pc = `INITIAL_PC;

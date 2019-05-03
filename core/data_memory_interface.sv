@@ -58,14 +58,11 @@ module data_memory_interface (
            default: sign_fix = 32'bx;
        endcase
     end
-    
-    always_comb begin
-        if (read_enable) begin
-            if (is_data_memory) data_fetched = sign_fix;
-            else                data_fetched = 32'hxxxxxxxx;
-        end
-        else                    data_fetched = 32'hxxxxxxxx;
-    end
+
+    assign data_fetched = 
+        read_enable && is_data_memory
+        ? sign_fix
+        : 32'hxxxxxxxx;
     
 endmodule
 
