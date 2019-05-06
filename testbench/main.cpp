@@ -2,7 +2,7 @@
 // BSD 3-Clause License
 // (c) 2019, Marek Materzok, University of Wrocław
 
-#include "Vriscv_core.h"
+#include "Vtoplevel.h"
 #include "verilated.h"
 #include <iostream>
 #include <iomanip>
@@ -34,7 +34,7 @@ int main(int argc, const char **argv, const char **env)
     str = Verilated::commandArgsPlusMatch("verbose");
     if (str && str[0]) verbose = true;
 
-    std::unique_ptr<Vriscv_core> top(new Vriscv_core);
+    std::unique_ptr<Vtoplevel> top(new Vtoplevel);
 
     top->reset = 0;
 
@@ -50,11 +50,11 @@ int main(int argc, const char **argv, const char **env)
                       << "pc=" << std::setw(8) << top->pc << " "
                       << "inst=" << std::setw(8) << top->inst << " "
                       << "addr=" << std::setw(8) << top->bus_address << " "
-                      << "in=" << std::setw(8) << top->bus_data_fetched << " "
+                      << "in=" << std::setw(8) << top->bus_read_data << " "
                       << (top->bus_read_enable ? "1" : "0") << " "
                       << "out=" << std::setw(8) << top->bus_write_data << " "
                       << (top->bus_write_enable ? "1" : "0") << " " 
-                      << "fmt=" << (int)top->bus_format << std::endl;
+                      << "fmt=" << (int)top->bus_byte_enable << std::endl;
         }
         if (top->bus_write_enable && top->bus_address == 0xfffffff0) {
             if (top->bus_write_data) {

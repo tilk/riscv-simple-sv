@@ -1,6 +1,6 @@
 
 VERILATOR_INCLUDE=/usr/share/verilator/include
-VERILATED_SRCS=Vriscv_core.cpp Vriscv_core__Syms.cpp Vriscv_core__Dpi.cpp Vriscv_core___024unit.cpp
+VERILATED_SRCS=Vtoplevel.cpp Vtoplevel__Syms.cpp Vtoplevel__Dpi.cpp Vtoplevel___024unit.cpp
 OBJS=$(VERILATED_SRCS:.cpp=.o) main.o
 CXXFLAGS=-I ${VERILATOR_INCLUDE} -I ${VERILATOR_INCLUDE}/vltstd
 VFLAGS=-Wno-fatal -DUNICICLO -DRV32I -DTEXT_HEX="text_mem_file()" -DDATA_HEX="data_mem_file()" -I. -I../core 
@@ -19,7 +19,7 @@ testbench: ${OBJS}
 	${CXX} ${CXXFLAGS} -c -o $@ $<
 
 ${VERILATED_SRCS}: $(wildcard ../core/*.sv) config.sv
-	verilator ${VFLAGS} -I../core --cc ../core/riscv_core.sv --Mdir .
+	verilator ${VFLAGS} -I../core --cc ../core/toplevel.sv --Mdir .
 
 clean:
 	rm -f testbench ${OBJS} $(wildcard V*)

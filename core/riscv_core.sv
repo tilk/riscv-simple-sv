@@ -10,14 +10,14 @@ module riscv_core (
     input  clock,
     input  reset,
 
-    output [31:0] bus_data_fetched,
     output [31:0] bus_address,
+    input  [31:0] bus_read_data,
     output [31:0] bus_write_data,
-    output [2:0]  bus_format,
-    output bus_read_enable,
-    output bus_write_enable,
+    output [3:0]  bus_byte_enable,
+    output        bus_read_enable,
+    output        bus_write_enable,
 
-    output [31:0] inst,
+    input  [31:0] inst,
     output [31:0] pc
 );
 
@@ -36,15 +36,18 @@ module riscv_core (
     logic [1:0] next_pc_select;
     logic [4:0] alu_function;
     logic alu_result_equal_zero;
-
-    assign bus_format = inst_funct3;
+    logic [31:0] read_data;
+    logic [31:0] write_data;
+    logic [31:0] address;
+    logic read_enable;
+    logic write_enable;
 
     singlecycle_datapath singlecycle_datapath (
         .clock                  (clock),
         .reset                  (reset),
-        .data_mem_data_fetched  (bus_data_fetched),
-        .data_mem_address       (bus_address),
-        .data_mem_write_data    (bus_write_data),
+        .data_mem_data_fetched  (read_data),
+        .data_mem_address       (address),
+        .data_mem_write_data    (write_data),
         .immediate              (immediate),
         .inst_rd                (inst_rd),
         .inst_rs1               (inst_rs1),
@@ -84,8 +87,8 @@ module riscv_core (
         .regfile_write_enable   (regfile_write_enable),
         .alu_operand_a_select   (alu_operand_a_select),
         .alu_operand_b_select   (alu_operand_b_select),
-        .data_mem_read_enable   (bus_read_enable),
-        .data_mem_write_enable  (bus_write_enable),
+        .data_mem_read_enable   (read_enable),
+        .data_mem_write_enable  (write_enable),
         .reg_writeback_select   (reg_writeback_select),
         .alu_function           (alu_function),
         .next_pc_select         (next_pc_select)
@@ -93,18 +96,18 @@ module riscv_core (
     
     data_memory_interface data_memory_interface (
         .clock                  (clock),
-        .read_enable            (bus_read_enable),
-        .write_enable           (bus_write_enable),
+        .read_enable            (read_enable),
+        .write_enable           (write_enable),
         .data_format            (inst_funct3),
-        .address                (bus_address),
-        .write_data             (bus_write_data),
-        .data_fetched           (bus_data_fetched)
-    );
-    
-    text_memory_interface text_memory_interface (
-        .clock                  (clock),
-        .address                (pc),
-        .data_fetched           (inst)
+        .address                (address),
+        .write_data             (write_data),
+        .read_data              (read_data),
+        .bus_address            (bus_address),
+        .bus_read_data          (bus_read_data),
+        .bus_write_data         (bus_write_data),
+        .bus_read_enable        (bus_read_enable),
+        .bus_write_enable       (bus_write_enable),
+        .bus_byte_enable        (bus_byte_enable)
     );
     
 endmodule

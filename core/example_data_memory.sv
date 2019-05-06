@@ -6,7 +6,7 @@
 `include "config.sv"
 `include "constants.sv"
 
-module data_memory (
+module example_data_memory (
 	input [`DATA_BITS-3:0] address,
 	input [3:0] byteena,
 	input clock,
