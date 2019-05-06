@@ -11,8 +11,6 @@ module immediate_generator (
     output logic [31:0] immediate
 );
 
-    logic [63:0] imm_I, imm_S, imm_B, imm_U, imm_J;
-    
     // Immediate format
     //       31.............30........20.19........12.11.....11.10.........5.4..........1.0.....0
     // I = { {21{inst[31]}},                                     inst[30:25], inst[24:20]         };
