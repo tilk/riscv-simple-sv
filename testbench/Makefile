@@ -3,7 +3,7 @@ VERILATOR_INCLUDE=/usr/share/verilator/include
 VERILATED_SRCS=Vtoplevel.cpp Vtoplevel__Syms.cpp Vtoplevel__Dpi.cpp Vtoplevel___024unit.cpp
 OBJS=$(VERILATED_SRCS:.cpp=.o) main.o
 CXXFLAGS=-I ${VERILATOR_INCLUDE} -I ${VERILATOR_INCLUDE}/vltstd
-VFLAGS=-Wno-fatal -DUNICICLO -DRV32I -DTEXT_HEX="text_mem_file()" -DDATA_HEX="data_mem_file()" -I. -I../core 
+VFLAGS=-Wno-fatal -DSINGLE_CYCLE -DRV32I -I. -I../core 
 TESTDIR=../tests
 TESTS=$(notdir $(patsubst %.S,%,$(wildcard $(TESTDIR)/*.S)))
 
