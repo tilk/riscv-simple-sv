@@ -1,4 +1,4 @@
-// RISC-V SiMPLE SV -- data path
+// RISC-V SiMPLE SV -- single-cycle data path
 // BSD 3-Clause License
 // (c) 2017-2019, Arthur Matos, Marcus Vinicius Lamar, Universidade de Brasília,
 //                Marek Materzok, University of Wrocław
@@ -10,7 +10,7 @@ module singlecycle_datapath (
     input  clock,
     input  reset,
 
-    input  [31:0] data_mem_data_fetched,
+    input  [31:0] data_mem_read_data,
     output [31:0] data_mem_address,
     output [31:0] data_mem_write_data,
 
@@ -108,7 +108,7 @@ module singlecycle_datapath (
         .WIDTH(32)
     ) mux_reg_writeback (
         .in0 (alu_result),
-        .in1 (data_mem_data_fetched),
+        .in1 (data_mem_read_data),
         .in2 (pc_plus_4),
         .in3 (immediate),
         .in4 (32'b0),
@@ -119,12 +119,15 @@ module singlecycle_datapath (
         .out (rd_data)
     );
     
-    program_counter program_counter(
+    register #(
+        .WIDTH(32),
+        .INITIAL(`INITIAL_PC)
+    ) program_counter(
         .clock              (clock),
         .reset              (reset),
         .write_enable       (pc_write_enable),
-        .next_pc            (next_pc),
-        .pc                 (pc)
+        .next               (next_pc),
+        .value              (pc)
     );
     
     regfile regfile(

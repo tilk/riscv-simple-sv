@@ -1,4 +1,4 @@
-// RISC-V SiMPLE SV -- program counter
+// RISC-V SiMPLE SV -- generic register
 // BSD 3-Clause License
 // (c) 2017-2019, Arthur Matos, Marcus Vinicius Lamar, Universidade de Brasília,
 //                Marek Materzok, University of Wrocław
@@ -6,19 +6,22 @@
 `include "config.sv"
 `include "constants.sv"
 
-module program_counter (
+module register #(
+    parameter  WIDTH    = 32,
+    parameter  INITIAL  = 0
+) (
     input  clock,
     input  reset,
     input  write_enable,
-    input  [31:0] next_pc,
+    input  [31:0] next,
 
-    output logic [31:0] pc
+    output logic [31:0] value
 );
 
-   initial pc = `INITIAL_PC;
+   initial value = INITIAL;
    
    always_ff @ (posedge clock or posedge reset)
-       if (reset) pc <= `INITIAL_PC;
-       else if (write_enable) pc <= next_pc;
+       if (reset) value <= INITIAL;
+       else if (write_enable) value <= next;
 
 endmodule

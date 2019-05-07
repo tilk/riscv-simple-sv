@@ -1,7 +1,6 @@
-// RISC-V SiMPLE SV -- RISC-V core
+// RISC-V SiMPLE SV -- Multicycle RISC-V core
 // BSD 3-Clause License
-// (c) 2017-2019, Arthur Matos, Marcus Vinicius Lamar, Universidade de Brasília,
-//                Marek Materzok, University of Wrocław
+// (c) 2017-2019, Marek Materzok, University of Wrocław
 
 `include "config.sv"
 `include "constants.sv"
@@ -17,25 +16,77 @@ module riscv_core (
     output        bus_read_enable,
     output        bus_write_enable,
 
-    input  [31:0] inst,
+    output [31:0] inst,
     output [31:0] pc
 );
 
+    logic [4:0] alu_function;
+    logic pc_write_enable;
+    logic alu_out_write_enable;
+    logic inst_write_enable;
+    logic data_write_enable;
+    logic regfile_write_enable;
+    logic mem_to_reg;
+    logic inst_or_data;
+    logic [6:0] inst_opcode;
+    logic [2:0] inst_funct3;
+    logic [6:0] inst_funct7;
+    logic alu_result_equal_zero;
+    logic [31:0] address;
+    logic [31:0] read_data;
+    logic [31:0] write_data;
+    logic [2:0] data_format;
+
+    multicycle_datapath multicycle_datapath (
+        .clock                  (clock),
+        .reset                  (reset),
+        .alu_function           (alu_function),
+        .pc_write_enable        (pc_write_enable),
+        .alu_out_write_enable   (alu_out_write_enable),
+        .inst_write_enable      (inst_write_enable),
+        .data_write_enable      (data_write_enable),
+        .regfile_write_enable   (regfile_write_enable),
+        .mem_to_reg             (mem_to_reg),
+        .inst_or_data           (inst_or_data),
+        .mem_address            (address),
+        .mem_read_data          (read_data),
+        .mem_write_data         (write_data),
+        .pc                     (pc),
+        .inst                   (inst),
+        .inst_opcode            (inst_opcode),
+        .inst_funct3            (inst_funct3),
+        .inst_funct7            (inst_funct7),
+        .alu_result_equal_zero  (alu_result_equal_zero)
+    );
+
+    multicycle_ctlpath multicycle_ctlpath(
+        .clock                  (clock),
+        .reset                  (reset),
+        .alu_function           (alu_function),
+        .pc_write_enable        (pc_write_enable),
+        .alu_out_write_enable   (alu_out_write_enable),
+        .inst_write_enable      (inst_write_enable),
+        .data_write_enable      (data_write_enable),
+        .regfile_write_enable   (regfile_write_enable),
+        .mem_to_reg             (mem_to_reg),
+        .inst_or_data           (inst_or_data),
+        .inst_opcode            (inst_opcode),
+        .inst_funct3            (inst_funct3),
+        .inst_funct7            (inst_funct7),
+        .alu_result_equal_zero  (alu_result_equal_zero)
+    );
+/*
     logic pc_write_enable;
     logic regfile_write_enable;
     logic alu_operand_a_select;
     logic alu_operand_b_select;
     logic [2:0] reg_writeback_select;
-    logic [6:0] inst_opcode;
-    logic [2:0] inst_funct3;
-    logic [6:0] inst_funct7;
     logic [4:0] inst_rd;
     logic [4:0] inst_rs1;
     logic [4:0] inst_rs2;
     logic [31:0] immediate;
     logic [1:0] next_pc_select;
     logic [4:0] alu_function;
-    logic alu_result_equal_zero;
     logic [31:0] read_data;
     logic [31:0] write_data;
     logic [31:0] address;
@@ -45,7 +96,7 @@ module riscv_core (
     singlecycle_datapath singlecycle_datapath (
         .clock                  (clock),
         .reset                  (reset),
-        .data_mem_data_fetched  (read_data),
+        .data_mem_read_data     (read_data),
         .data_mem_address       (address),
         .data_mem_write_data    (write_data),
         .immediate              (immediate),
@@ -63,21 +114,6 @@ module riscv_core (
         .alu_function           (alu_function)
     );
 
-    instruction_decoder instruction_decoder(
-        .inst                   (inst),
-        .inst_opcode            (inst_opcode),
-        .inst_funct7            (inst_funct7),
-        .inst_funct3            (inst_funct3),
-        .inst_rd                (inst_rd),
-        .inst_rs1               (inst_rs1),
-        .inst_rs2               (inst_rs2)
-    );
-    
-    immediate_generator immediate_generator(
-        .inst                   (inst),
-        .immediate              (immediate)
-    );
-    
     singlecycle_ctlpath singlecycle_ctlpath(
         .inst_opcode            (inst_opcode),
         .inst_funct3            (inst_funct3),
@@ -98,7 +134,7 @@ module riscv_core (
         .clock                  (clock),
         .read_enable            (read_enable),
         .write_enable           (write_enable),
-        .data_format            (inst_funct3),
+        .data_format            (data_format),
         .address                (address),
         .write_data             (write_data),
         .read_data              (read_data),
@@ -109,6 +145,6 @@ module riscv_core (
         .bus_write_enable       (bus_write_enable),
         .bus_byte_enable        (bus_byte_enable)
     );
-    
+*/    
 endmodule
 

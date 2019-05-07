@@ -21,7 +21,7 @@ testbench: ${OBJS}
 main.cpp: ../main.cpp
 	cp ../main.cpp .
 
-${VERILATED_SRCS}: $(wildcard ../core/common/*.sv) $(wildcard ../core/$(CORETYPE)/*.sv) config.sv
+${VERILATED_SRCS}: $(wildcard ../../core/common/*.sv) $(wildcard ../../core/$(CORETYPE)/*.sv) config.sv
 	verilator ${VFLAGS} --cc ../../core/$(CORETYPE)/toplevel.sv --Mdir .
 
 clean:
