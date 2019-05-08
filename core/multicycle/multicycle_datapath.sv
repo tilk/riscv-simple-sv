@@ -35,13 +35,14 @@ module multicycle_datapath (
     input [4:0] alu_function,
     input alu_operand_a_select,
     input [1:0] alu_operand_b_select,
-    input next_pc_select,
+    input [1:0] next_pc_select,
     input pc_write_enable,
+    input pc4_write_enable,
     input alu_out_write_enable,
     input inst_write_enable,
     input data_write_enable,
     input regfile_write_enable,
-    input mem_to_reg,
+    input [1:0] reg_writeback_select,
     input inst_or_data
 );
 
@@ -68,6 +69,7 @@ module multicycle_datapath (
 
     // program counter signals
     logic [31:0] next_pc;
+    logic [31:0] pc4;
     
     logic [31:0] data;
 
@@ -105,6 +107,17 @@ module multicycle_datapath (
         .write_enable       (pc_write_enable),
         .next               (next_pc),
         .value              (pc)
+    );
+
+    register #(
+        .WIDTH(32),
+        .INITIAL(`INITIAL_PC)
+    ) pc4_register(
+        .clock              (clock),
+        .reset              (reset),
+        .write_enable       (pc4_write_enable),
+        .next               (alu_result),
+        .value              (pc4)
     );
 
     register #(
@@ -166,12 +179,14 @@ module multicycle_datapath (
         .out                (mem_address)
     );
 
-    multiplexer2 #(
+    multiplexer4 #(
         .WIDTH(32)
     ) mux_mem_to_reg (
         .in0                (alu_out),
         .in1                (data),
-        .sel                (mem_to_reg),
+        .in2                (32'b0),
+        .in3                (immediate),
+        .sel                (reg_writeback_select),
         .out                (rd_data)
     );
 
@@ -195,11 +210,13 @@ module multicycle_datapath (
         .out                (alu_operand_b)
     );
 
-    multiplexer2 #(
+    multiplexer4 #(
         .WIDTH(32)
     ) mux_next_pc (
-        .in0                (alu_result),
-        .in1                (alu_out),
+        .in0                (pc4),
+        .in1                (alu_result),
+        .in2                (alu_out),
+        .in3                (32'b0),
         .sel                (next_pc_select),
         .out                (next_pc)
     );

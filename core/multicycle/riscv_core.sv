@@ -22,14 +22,15 @@ module riscv_core (
 
     logic [4:0] alu_function;
     logic pc_write_enable;
-    logic next_pc_select;
+    logic pc4_write_enable;
+    logic [1:0] next_pc_select;
     logic alu_out_write_enable;
     logic alu_operand_a_select;
     logic [1:0] alu_operand_b_select;
     logic inst_write_enable;
     logic data_write_enable;
     logic regfile_write_enable;
-    logic mem_to_reg;
+    logic [1:0] reg_writeback_select;
     logic inst_or_data;
     logic [6:0] inst_opcode;
     logic [2:0] inst_funct3;
@@ -50,11 +51,12 @@ module riscv_core (
         .alu_operand_b_select   (alu_operand_b_select),
         .next_pc_select         (next_pc_select),
         .pc_write_enable        (pc_write_enable),
+        .pc4_write_enable       (pc4_write_enable),
         .alu_out_write_enable   (alu_out_write_enable),
         .inst_write_enable      (inst_write_enable),
         .data_write_enable      (data_write_enable),
         .regfile_write_enable   (regfile_write_enable),
-        .mem_to_reg             (mem_to_reg),
+        .reg_writeback_select   (reg_writeback_select),
         .inst_or_data           (inst_or_data),
         .mem_address            (address),
         .mem_read_data          (read_data),
@@ -75,11 +77,12 @@ module riscv_core (
         .alu_operand_b_select   (alu_operand_b_select),
         .next_pc_select         (next_pc_select),
         .pc_write_enable        (pc_write_enable),
+        .pc4_write_enable       (pc4_write_enable),
         .alu_out_write_enable   (alu_out_write_enable),
         .inst_write_enable      (inst_write_enable),
         .data_write_enable      (data_write_enable),
         .regfile_write_enable   (regfile_write_enable),
-        .mem_to_reg             (mem_to_reg),
+        .reg_writeback_select   (reg_writeback_select),
         .inst_or_data           (inst_or_data),
         .inst_opcode            (inst_opcode),
         .inst_funct3            (inst_funct3),
