@@ -16,13 +16,19 @@ module multicycle_ctlpath (
 
     // control signals
     output [4:0] alu_function,
+    output logic alu_operand_a_select,
+    output logic [1:0] alu_operand_b_select,
+    output next_pc_select,
     output pc_write_enable,
     output alu_out_write_enable,
     output inst_write_enable,
     output data_write_enable,
     output regfile_write_enable,
+    output mem_read_enable,
+    output mem_write_enable,
     output mem_to_reg,
-    output inst_or_data
+    output inst_or_data,
+    output [2:0] data_format
 );
 
     logic [2:0] alu_op_type;
@@ -34,9 +40,14 @@ module multicycle_ctlpath (
         .alu_result_equal_zero  (alu_result_equal_zero),
         .pc_write_enable        (pc_write_enable),
         .alu_out_write_enable   (alu_out_write_enable),
+        .alu_operand_a_select   (alu_operand_a_select),
+        .alu_operand_b_select   (alu_operand_b_select),
+        .next_pc_select         (next_pc_select),
         .inst_write_enable      (inst_write_enable),
         .data_write_enable      (data_write_enable),
         .regfile_write_enable   (regfile_write_enable),
+        .mem_read_enable        (mem_read_enable),
+        .mem_write_enable       (mem_write_enable),
         .mem_to_reg             (mem_to_reg),
         .inst_or_data           (inst_or_data),
         .alu_op_type            (alu_op_type)
@@ -48,6 +59,8 @@ module multicycle_ctlpath (
         .inst_funct7        (inst_funct7),
         .alu_function       (alu_function)
     );
+
+    assign data_format = inst_or_data ? inst_funct3 : 3'b010;
 
 endmodule
 

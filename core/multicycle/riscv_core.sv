@@ -22,7 +22,10 @@ module riscv_core (
 
     logic [4:0] alu_function;
     logic pc_write_enable;
+    logic next_pc_select;
     logic alu_out_write_enable;
+    logic alu_operand_a_select;
+    logic [1:0] alu_operand_b_select;
     logic inst_write_enable;
     logic data_write_enable;
     logic regfile_write_enable;
@@ -36,11 +39,16 @@ module riscv_core (
     logic [31:0] read_data;
     logic [31:0] write_data;
     logic [2:0] data_format;
+    logic read_enable;
+    logic write_enable;
 
     multicycle_datapath multicycle_datapath (
         .clock                  (clock),
         .reset                  (reset),
         .alu_function           (alu_function),
+        .alu_operand_a_select   (alu_operand_a_select),
+        .alu_operand_b_select   (alu_operand_b_select),
+        .next_pc_select         (next_pc_select),
         .pc_write_enable        (pc_write_enable),
         .alu_out_write_enable   (alu_out_write_enable),
         .inst_write_enable      (inst_write_enable),
@@ -63,6 +71,9 @@ module riscv_core (
         .clock                  (clock),
         .reset                  (reset),
         .alu_function           (alu_function),
+        .alu_operand_a_select   (alu_operand_a_select),
+        .alu_operand_b_select   (alu_operand_b_select),
+        .next_pc_select         (next_pc_select),
         .pc_write_enable        (pc_write_enable),
         .alu_out_write_enable   (alu_out_write_enable),
         .inst_write_enable      (inst_write_enable),
@@ -73,7 +84,10 @@ module riscv_core (
         .inst_opcode            (inst_opcode),
         .inst_funct3            (inst_funct3),
         .inst_funct7            (inst_funct7),
-        .alu_result_equal_zero  (alu_result_equal_zero)
+        .alu_result_equal_zero  (alu_result_equal_zero),
+        .mem_read_enable        (read_enable),
+        .mem_write_enable       (write_enable),
+        .data_format            (data_format)
     );
 /*
     logic pc_write_enable;
@@ -129,7 +143,7 @@ module riscv_core (
         .alu_function           (alu_function),
         .next_pc_select         (next_pc_select)
     );
-    
+*/    
     data_memory_interface data_memory_interface (
         .clock                  (clock),
         .read_enable            (read_enable),
@@ -145,6 +159,6 @@ module riscv_core (
         .bus_write_enable       (bus_write_enable),
         .bus_byte_enable        (bus_byte_enable)
     );
-*/    
+
 endmodule
 
