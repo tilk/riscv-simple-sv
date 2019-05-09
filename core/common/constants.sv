@@ -136,9 +136,8 @@
 `define CTL_PC_RS1_IMM  2'b10
 
 // PC source in multicycle
-`define MC_CTL_PC_LAST      2'b00
-`define MC_CTL_PC_ALU_RES   2'b01
-`define MC_CTL_PC_ALU_OUT   2'b10
+`define MC_CTL_PC_ALU_RES   1'b0
+`define MC_CTL_PC_ALU_OUT   1'b1
 
 // ALU 1st operand source
 `define MC_CTL_ALU_A_RS1     2'b00

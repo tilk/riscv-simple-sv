@@ -23,7 +23,7 @@ module riscv_core (
     logic [4:0] alu_function;
     logic pc_write_enable;
     logic last_pc_write_enable;
-    logic [1:0] next_pc_select;
+    logic next_pc_select;
     logic alu_out_write_enable;
     logic [1:0] alu_operand_a_select;
     logic [1:0] alu_operand_b_select;

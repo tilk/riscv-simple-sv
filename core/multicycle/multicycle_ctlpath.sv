@@ -18,7 +18,7 @@ module multicycle_ctlpath (
     output [4:0] alu_function,
     output [1:0] alu_operand_a_select,
     output [1:0] alu_operand_b_select,
-    output [1:0] next_pc_select,
+    output next_pc_select,
     output pc_write_enable,
     output last_pc_write_enable,
     output alu_out_write_enable,

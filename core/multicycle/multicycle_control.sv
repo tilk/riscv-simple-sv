@@ -26,7 +26,7 @@ module multicycle_control (
     output logic mem_read_enable,
     output logic [1:0] reg_writeback_select,
     output logic inst_or_data,
-    output [1:0] next_pc_select
+    output logic next_pc_select
 );
 
     logic [3:0] state;
@@ -34,14 +34,16 @@ module multicycle_control (
     `define STATE_FETCH         4'd0
     `define STATE_DECODE        4'd1
     `define STATE_EXECUTE       4'd2
-    `define STATE_LUI   4'd9
-    `define STATE_EXECUTE_IMM   4'd11
     `define STATE_ALU_WRITEBACK 4'd3
     `define STATE_MEM_ADDR      4'd4
     `define STATE_MEM_READ      4'd5
     `define STATE_MEM_WRITE     4'd6
     `define STATE_MEM_WRITEBACK 4'd7
     `define STATE_BRANCH        4'd8
+    `define STATE_LUI           4'd9
+    `define STATE_JAL           4'd10
+    `define STATE_JALR          4'd11
+    `define STATE_EXECUTE_IMM   4'd12
 
     always_ff @(posedge clock or posedge reset)
         if (reset) state <= `STATE_FETCH;
@@ -51,6 +53,8 @@ module multicycle_control (
                 case (inst_opcode)
                     `OPCODE_LOAD, `OPCODE_STORE: state <= `STATE_MEM_ADDR;
                     `OPCODE_BRANCH: state <= `STATE_BRANCH;
+                    `OPCODE_JAL: state <= `STATE_JAL;
+                    `OPCODE_JALR: state <= `STATE_JALR;
                     `OPCODE_OP: state <= `STATE_EXECUTE;
                     `OPCODE_OP_IMM: state <= `STATE_EXECUTE_IMM;
                     `OPCODE_LUI: state <= `STATE_LUI;
@@ -61,6 +65,8 @@ module multicycle_control (
             `STATE_EXECUTE: state <= `STATE_ALU_WRITEBACK;
             `STATE_EXECUTE_IMM: state <= `STATE_ALU_WRITEBACK;
             `STATE_LUI: state <= `STATE_FETCH;
+            `STATE_JAL: state <= `STATE_FETCH;
+            `STATE_JALR: state <= `STATE_FETCH;
             `STATE_ALU_WRITEBACK: state <= `STATE_FETCH;
             `STATE_MEM_ADDR: 
                 case (inst_opcode)
@@ -77,8 +83,10 @@ module multicycle_control (
 
     always_comb
         case (state)
-            `STATE_FETCH: pc_write_enable  = 1'b1;
+            `STATE_FETCH:  pc_write_enable = 1'b1;
             `STATE_BRANCH: pc_write_enable = take_branch;
+            `STATE_JAL:    pc_write_enable = 1'b1;
+            `STATE_JALR:   pc_write_enable = 1'b1;
             default: pc_write_enable = 1'b0;
         endcase
 
@@ -93,9 +101,9 @@ module multicycle_control (
         mem_write_enable        = 1'b0;
         reg_writeback_select    = 2'bx;
         inst_or_data            = 1'bx;
-        alu_operand_a_select    = 1'bx;
+        alu_operand_a_select    = 2'bx;
         alu_operand_b_select    = 2'bx;
-        next_pc_select          = 2'bx;
+        next_pc_select          = 1'bx;
         case (state)
             `STATE_FETCH: begin
                 mem_read_enable         = 1'b1;
@@ -157,6 +165,19 @@ module multicycle_control (
                 alu_operand_a_select    = `MC_CTL_ALU_A_RS1;
                 alu_operand_b_select    = `MC_CTL_ALU_B_RS2;
                 next_pc_select          = `MC_CTL_PC_ALU_OUT;
+            end
+            `STATE_JAL: begin
+                regfile_write_enable    = 1'b1;
+                reg_writeback_select    = `CTL_WRITEBACK_PC4;
+                next_pc_select          = `MC_CTL_PC_ALU_OUT;
+            end
+            `STATE_JALR: begin
+                regfile_write_enable    = 1'b1;
+                reg_writeback_select    = `CTL_WRITEBACK_PC4;
+                alu_op_type             = `CTL_ALU_ADD;
+                alu_operand_a_select    = `MC_CTL_ALU_A_RS1;
+                alu_operand_b_select    = `MC_CTL_ALU_B_IMM;
+                next_pc_select          = `MC_CTL_PC_ALU_RES;
             end
             default: begin
                 alu_out_write_enable    = 1'bx;

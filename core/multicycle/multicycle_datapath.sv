@@ -35,7 +35,7 @@ module multicycle_datapath (
     input [4:0] alu_function,
     input [1:0] alu_operand_a_select,
     input [1:0] alu_operand_b_select,
-    input [1:0] next_pc_select,
+    input next_pc_select,
     input pc_write_enable,
     input last_pc_write_enable,
     input alu_out_write_enable,
@@ -184,7 +184,7 @@ module multicycle_datapath (
     ) mux_mem_to_reg (
         .in0                (alu_out),
         .in1                (data),
-        .in2                (32'b0),
+        .in2                (pc),
         .in3                (immediate),
         .sel                (reg_writeback_select),
         .out                (rd_data)
@@ -212,13 +212,11 @@ module multicycle_datapath (
         .out                (alu_operand_b)
     );
 
-    multiplexer4 #(
+    multiplexer2 #(
         .WIDTH(32)
     ) mux_next_pc (
-        .in0                (last_pc),
-        .in1                (alu_result),
-        .in2                (alu_out),
-        .in3                (32'b0),
+        .in0                ({alu_result[31:1], 1'b0}),
+        .in1                (alu_out),
         .sel                (next_pc_select),
         .out                (next_pc)
     );
