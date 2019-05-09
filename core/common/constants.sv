@@ -88,6 +88,15 @@
 `define FUNCT3_BRANCH_LTU   3'b110
 `define FUNCT3_BRANCH_GEU   3'b111
 
+// Interpretations of the "funct3" field for system opcode
+`define FUNCT3_SYSTEM_ENV       3'b000
+`define FUNCT3_SYSTEM_CSRRW     3'b001
+`define FUNCT3_SYSTEM_CSRRS     3'b010
+`define FUNCT3_SYSTEM_CSRRC     3'b011
+`define FUNCT3_SYSTEM_CSRRWI    3'b101
+`define FUNCT3_SYSTEM_CSRRSS    3'b110
+`define FUNCT3_SYSTEM_CSRRCI    3'b111
+
 // ALU operations
 `define ALU_ZERO    5'b00000
 `define ALU_ADD     5'b00001
