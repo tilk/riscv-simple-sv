@@ -136,7 +136,6 @@ module multicycle_control (
             `STATE_LUI: begin
                 regfile_write_enable    = 1'b1;
                 reg_writeback_select    = `CTL_WRITEBACK_IMM;
-                alu_operand_b_select    = `MC_CTL_ALU_B_4;
             end
             `STATE_ALU_WRITEBACK: begin
                 regfile_write_enable    = 1'b1;
