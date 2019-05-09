@@ -1,5 +1,5 @@
 
 all:
 	make -C singlecycle
-#	make -C multicycle
+	make -C multicycle
 
