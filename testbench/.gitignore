@@ -1,3 +1,4 @@
 V*
 *.o
 testbench
+*/main.cpp

@@ -26,7 +26,7 @@ module example_data_memory_bus (
         .address    (address[`DATA_BITS-1:2]),
         .byteena    (byte_enable),
         .data       (write_data),
-        .wren       (write_enable),
+        .wren       (write_enable && is_data_memory),
         .q          (fetched)
     );
    

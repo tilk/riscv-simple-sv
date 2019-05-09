@@ -1,4 +1,4 @@
-// RISC-V SiMPLE SV -- RISC-V core
+// RISC-V SiMPLE SV -- Single-cycle RISC-V core
 // BSD 3-Clause License
 // (c) 2017-2019, Arthur Matos, Marcus Vinicius Lamar, Universidade de Brasília,
 //                Marek Materzok, University of Wrocław
@@ -45,7 +45,7 @@ module riscv_core (
     singlecycle_datapath singlecycle_datapath (
         .clock                  (clock),
         .reset                  (reset),
-        .data_mem_data_fetched  (read_data),
+        .data_mem_read_data     (read_data),
         .data_mem_address       (address),
         .data_mem_write_data    (write_data),
         .immediate              (immediate),
