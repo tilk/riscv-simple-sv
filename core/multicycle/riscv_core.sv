@@ -92,61 +92,7 @@ module riscv_core (
         .mem_write_enable       (write_enable),
         .data_format            (data_format)
     );
-/*
-    logic pc_write_enable;
-    logic regfile_write_enable;
-    logic alu_operand_a_select;
-    logic alu_operand_b_select;
-    logic [2:0] reg_writeback_select;
-    logic [4:0] inst_rd;
-    logic [4:0] inst_rs1;
-    logic [4:0] inst_rs2;
-    logic [31:0] immediate;
-    logic [1:0] next_pc_select;
-    logic [4:0] alu_function;
-    logic [31:0] read_data;
-    logic [31:0] write_data;
-    logic [31:0] address;
-    logic read_enable;
-    logic write_enable;
 
-    singlecycle_datapath singlecycle_datapath (
-        .clock                  (clock),
-        .reset                  (reset),
-        .data_mem_read_data     (read_data),
-        .data_mem_address       (address),
-        .data_mem_write_data    (write_data),
-        .immediate              (immediate),
-        .inst_rd                (inst_rd),
-        .inst_rs1               (inst_rs1),
-        .inst_rs2               (inst_rs2),
-        .pc                     (pc),
-        .pc_write_enable        (pc_write_enable),
-        .regfile_write_enable   (regfile_write_enable),
-        .alu_operand_a_select   (alu_operand_a_select),
-        .alu_operand_b_select   (alu_operand_b_select),
-        .reg_writeback_select   (reg_writeback_select),
-        .next_pc_select         (next_pc_select),
-        .alu_result_equal_zero  (alu_result_equal_zero),
-        .alu_function           (alu_function)
-    );
-
-    singlecycle_ctlpath singlecycle_ctlpath(
-        .inst_opcode            (inst_opcode),
-        .inst_funct3            (inst_funct3),
-        .inst_funct7            (inst_funct7),
-        .alu_result_equal_zero  (alu_result_equal_zero),
-        .pc_write_enable        (pc_write_enable),
-        .regfile_write_enable   (regfile_write_enable),
-        .alu_operand_a_select   (alu_operand_a_select),
-        .alu_operand_b_select   (alu_operand_b_select),
-        .data_mem_read_enable   (read_enable),
-        .data_mem_write_enable  (write_enable),
-        .reg_writeback_select   (reg_writeback_select),
-        .alu_function           (alu_function),
-        .next_pc_select         (next_pc_select)
-    );
-*/    
     data_memory_interface data_memory_interface (
         .clock                  (clock),
         .read_enable            (read_enable),
