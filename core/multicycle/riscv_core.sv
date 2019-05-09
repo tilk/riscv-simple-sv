@@ -30,7 +30,7 @@ module riscv_core (
     logic inst_write_enable;
     logic data_write_enable;
     logic regfile_write_enable;
-    logic [1:0] reg_writeback_select;
+    logic [2:0] reg_writeback_select;
     logic inst_or_data;
     logic [6:0] inst_opcode;
     logic [2:0] inst_funct3;

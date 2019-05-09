@@ -21,17 +21,6 @@ module multicycle_datapath (
     output [6:0] inst_funct7,
     output alu_result_equal_zero,
 
-/*
-
-    
-    // control signals
-    input pc_write_enable,
-    input regfile_write_enable,
-    input alu_operand_a_select,
-    input alu_operand_b_select,
-    input [2:0] reg_writeback_select,
-    input [1:0] next_pc_select,
-*/
     input [4:0] alu_function,
     input [1:0] alu_operand_a_select,
     input [1:0] alu_operand_b_select,
@@ -42,7 +31,7 @@ module multicycle_datapath (
     input inst_write_enable,
     input data_write_enable,
     input regfile_write_enable,
-    input [1:0] reg_writeback_select,
+    input [2:0] reg_writeback_select,
     input inst_or_data
 );
 
@@ -179,13 +168,17 @@ module multicycle_datapath (
         .out                (mem_address)
     );
 
-    multiplexer4 #(
+    multiplexer8 #(
         .WIDTH(32)
     ) mux_mem_to_reg (
         .in0                (alu_out),
         .in1                (data),
         .in2                (pc),
         .in3                (immediate),
+        .in4                (32'b0),
+        .in5                (32'b0),
+        .in6                (32'b0),
+        .in7                (32'b0),
         .sel                (reg_writeback_select),
         .out                (rd_data)
     );

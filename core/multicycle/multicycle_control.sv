@@ -24,7 +24,7 @@ module multicycle_control (
     output logic regfile_write_enable,
     output logic mem_write_enable,
     output logic mem_read_enable,
-    output logic [1:0] reg_writeback_select,
+    output logic [2:0] reg_writeback_select,
     output logic inst_or_data,
     output logic next_pc_select
 );
@@ -99,7 +99,7 @@ module multicycle_control (
         regfile_write_enable    = 1'b0;
         mem_read_enable         = 1'b0;
         mem_write_enable        = 1'b0;
-        reg_writeback_select    = 2'bx;
+        reg_writeback_select    = 3'bx;
         inst_or_data            = 1'bx;
         alu_operand_a_select    = 2'bx;
         alu_operand_b_select    = 2'bx;

@@ -7,8 +7,8 @@
 `define RV_CONFIG
 
 // Select architecture
-`define SINGLE_CYCLE
-// `define MULTI_CYCLE
+// `define SINGLE_CYCLE
+`define MULTI_CYCLE
 // `define PIPELINE
 
 // Select ISA

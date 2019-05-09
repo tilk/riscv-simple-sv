@@ -27,7 +27,7 @@ module multicycle_ctlpath (
     output regfile_write_enable,
     output mem_read_enable,
     output mem_write_enable,
-    output [1:0] reg_writeback_select,
+    output [2:0] reg_writeback_select,
     output inst_or_data,
     output [2:0] data_format
 );
