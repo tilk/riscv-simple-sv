@@ -33,11 +33,11 @@ module multicycle_datapath (
     input [1:0] next_pc_select,
 */
     input [4:0] alu_function,
-    input alu_operand_a_select,
+    input [1:0] alu_operand_a_select,
     input [1:0] alu_operand_b_select,
     input [1:0] next_pc_select,
     input pc_write_enable,
-    input pc4_write_enable,
+    input last_pc_write_enable,
     input alu_out_write_enable,
     input inst_write_enable,
     input data_write_enable,
@@ -69,7 +69,7 @@ module multicycle_datapath (
 
     // program counter signals
     logic [31:0] next_pc;
-    logic [31:0] pc4;
+    logic [31:0] last_pc;
     
     logic [31:0] data;
 
@@ -112,12 +112,12 @@ module multicycle_datapath (
     register #(
         .WIDTH(32),
         .INITIAL(`INITIAL_PC)
-    ) pc4_register(
+    ) last_pc_register(
         .clock              (clock),
         .reset              (reset),
-        .write_enable       (pc4_write_enable),
-        .next               (alu_result),
-        .value              (pc4)
+        .write_enable       (last_pc_write_enable),
+        .next               (pc),
+        .value              (last_pc)
     );
 
     register #(
@@ -190,11 +190,13 @@ module multicycle_datapath (
         .out                (rd_data)
     );
 
-    multiplexer2 #(
+    multiplexer4 #(
         .WIDTH(32)
     ) mux_alu_operand_a (
         .in0                (rs1_out),
         .in1                (pc),
+        .in2                (last_pc),
+        .in3                (32'b0),
         .sel                (alu_operand_a_select),
         .out                (alu_operand_a)
     );
@@ -213,7 +215,7 @@ module multicycle_datapath (
     multiplexer4 #(
         .WIDTH(32)
     ) mux_next_pc (
-        .in0                (pc4),
+        .in0                (last_pc),
         .in1                (alu_result),
         .in2                (alu_out),
         .in3                (32'b0),

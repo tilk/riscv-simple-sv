@@ -16,11 +16,11 @@ module multicycle_ctlpath (
 
     // control signals
     output [4:0] alu_function,
-    output logic alu_operand_a_select,
-    output logic [1:0] alu_operand_b_select,
+    output [1:0] alu_operand_a_select,
+    output [1:0] alu_operand_b_select,
     output [1:0] next_pc_select,
     output pc_write_enable,
-    output pc4_write_enable,
+    output last_pc_write_enable,
     output alu_out_write_enable,
     output inst_write_enable,
     output data_write_enable,
@@ -33,18 +33,17 @@ module multicycle_ctlpath (
 );
 
     logic [2:0] alu_op_type;
+    logic take_branch;
 
     multicycle_control multicycle_control(
         .clock                  (clock),
         .reset                  (reset),
         .inst_opcode            (inst_opcode),
-        .alu_result_equal_zero  (alu_result_equal_zero),
         .pc_write_enable        (pc_write_enable),
-        .pc4_write_enable       (pc4_write_enable),
+        .last_pc_write_enable   (last_pc_write_enable),
         .alu_out_write_enable   (alu_out_write_enable),
         .alu_operand_a_select   (alu_operand_a_select),
         .alu_operand_b_select   (alu_operand_b_select),
-        .next_pc_select         (next_pc_select),
         .inst_write_enable      (inst_write_enable),
         .data_write_enable      (data_write_enable),
         .regfile_write_enable   (regfile_write_enable),
@@ -52,7 +51,15 @@ module multicycle_ctlpath (
         .mem_write_enable       (mem_write_enable),
         .reg_writeback_select   (reg_writeback_select),
         .inst_or_data           (inst_or_data),
-        .alu_op_type            (alu_op_type)
+        .alu_op_type            (alu_op_type),
+        .next_pc_select         (next_pc_select),
+        .take_branch            (take_branch)
+    );
+
+    control_transfer control_transfer (
+        .result_equal_zero  (alu_result_equal_zero),
+        .inst_funct3        (inst_funct3),
+        .take_branch        (take_branch)
     );
 
     alu_control alu_control(

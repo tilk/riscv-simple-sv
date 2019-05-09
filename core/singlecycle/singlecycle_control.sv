@@ -8,18 +8,25 @@
 
 module singlecycle_control (
     input  [6:0] inst_opcode,
+    input  take_branch,
     output logic pc_write_enable,
     output logic regfile_write_enable,
     output logic alu_operand_a_select,
     output logic alu_operand_b_select,
     output logic [2:0] alu_op_type,
-    output logic jal_enable,
-    output logic jalr_enable,
-    output logic branch_enable,
     output logic data_mem_read_enable,
     output logic data_mem_write_enable,
-    output logic [2:0] reg_writeback_select
+    output logic [2:0] reg_writeback_select,
+    output logic [1:0] next_pc_select
 );
+
+    always_comb
+        case (inst_opcode)
+            `OPCODE_BRANCH: next_pc_select = take_branch ? `CTL_PC_PC_IMM : `CTL_PC_PC4;
+            `OPCODE_JALR:   next_pc_select = `CTL_PC_RS1_IMM;
+            `OPCODE_JAL:    next_pc_select = `CTL_PC_PC_IMM;
+            default:        next_pc_select = `CTL_PC_PC4;
+        endcase
 
     always_comb begin
         pc_write_enable         = 1'b1;
@@ -27,9 +34,6 @@ module singlecycle_control (
         alu_operand_a_select    = 1'b0;
         alu_operand_b_select    = 1'b0;
         alu_op_type             = `CTL_ALU_ZERO;
-        jal_enable              = 1'b0;
-        jalr_enable             = 1'b0;
-        branch_enable           = 1'b0;
         data_mem_read_enable    = 1'b0;
         data_mem_write_enable   = 1'b0;
         reg_writeback_select    = `CTL_WRITEBACK_ALU;
@@ -52,9 +56,6 @@ module singlecycle_control (
             //     alu_operand_a_select    = 1'b0;
             //     alu_operand_b_select    = 1'b0;
             //     alu_op_type             = 3'b000;
-            //     jal_enable              = 1'b0;
-            //     jalr_enable             = 1'b0;
-            //     branch_enable           = 1'b0;
             //     data_mem_read_enable    = 1'b0;
             //     data_mem_write_enable   = 1'b0;
             //     reg_writeback_select    = 3'b000;
@@ -62,7 +63,7 @@ module singlecycle_control (
     
             `OPCODE_MISC_MEM:
             begin
-                // Fence - Ignorado, mas não causa exceção
+                // Fence - ignore
             end
     
             `OPCODE_OP_IMM:
@@ -98,9 +99,6 @@ module singlecycle_control (
             //     alu_operand_a_select    = 1'b0;
             //     alu_operand_b_select    = 1'b0;
             //     alu_op_type             = 3'b000;
-            //     jal_enable              = 1'b0;
-            //     jalr_enable             = 1'b0;
-            //     branch_enable           = 1'b0;
             //     data_mem_read_enable    = 1'b0;
             //     data_mem_write_enable   = 1'b0;
             //     reg_writeback_select    = 3'b000;
@@ -131,9 +129,6 @@ module singlecycle_control (
             //     alu_operand_a_select    = 1'b0;
             //     alu_operand_b_select    = 1'b0;
             //     alu_op_type             = 3'b000;
-            //     jal_enable              = 1'b0;
-            //     jalr_enable             = 1'b0;
-            //     branch_enable           = 1'b0;
             //     data_mem_read_enable    = 1'b0;
             //     data_mem_write_enable   = 1'b0;
             //     reg_writeback_select    = 3'b000;
@@ -144,7 +139,6 @@ module singlecycle_control (
                 alu_operand_a_select    = `CTL_ALU_A_RS1;
                 alu_operand_b_select    = `CTL_ALU_B_RS2;
                 alu_op_type             = `CTL_ALU_BRANCH;
-                branch_enable           = 1'b1;
             end
     
             `OPCODE_JALR:
@@ -153,7 +147,6 @@ module singlecycle_control (
                 alu_operand_a_select    = `CTL_ALU_A_RS1;
                 alu_operand_b_select    = `CTL_ALU_B_IMM;
                 alu_op_type             = `CTL_ALU_ADD;
-                jalr_enable             = 1'b1;
                 reg_writeback_select    = `CTL_WRITEBACK_PC4;
             end
     
@@ -163,7 +156,6 @@ module singlecycle_control (
                 alu_operand_a_select    = `CTL_ALU_A_PC;
                 alu_operand_b_select    = `CTL_ALU_B_IMM;
                 alu_op_type             = `CTL_ALU_ADD;
-                jal_enable              = 1'b1;
                 reg_writeback_select    = `CTL_WRITEBACK_PC4;
             end
     
@@ -174,9 +166,6 @@ module singlecycle_control (
             //     alu_operand_a_select    = 1'b0;
             //     alu_operand_b_select    = 1'b0;
             //     alu_op_type             = 3'b000;
-            //     jal_enable              = 1'b0;
-            //     jalr_enable             = 1'b0;
-            //     branch_enable           = 1'b0;
             //     data_mem_read_enable    = 1'b0;
             //     data_mem_write_enable   = 1'b0;
             //     reg_writeback_select    = 3'b000;
@@ -189,9 +178,6 @@ module singlecycle_control (
                 alu_operand_a_select    = 1'bx;
                 alu_operand_b_select    = 1'bx;
                 alu_op_type             = 3'bx;
-                jal_enable              = 1'bx;
-                jalr_enable             = 1'bx;
-                branch_enable           = 1'bx;
                 data_mem_read_enable    = 1'bx;
                 data_mem_write_enable   = 1'bx;
                 reg_writeback_select    = 3'bx;

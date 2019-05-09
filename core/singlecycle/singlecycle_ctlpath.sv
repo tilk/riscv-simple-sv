@@ -23,9 +23,7 @@ module singlecycle_ctlpath (
     output [1:0] next_pc_select
 );
 
-    logic jal_enable;
-    logic jalr_enable;
-    logic branch_enable;
+    logic take_branch;
     logic [2:0] alu_op_type;
 
     singlecycle_control singlecycle_control(
@@ -35,21 +33,17 @@ module singlecycle_ctlpath (
         .alu_operand_a_select   (alu_operand_a_select),
         .alu_operand_b_select   (alu_operand_b_select),
         .alu_op_type            (alu_op_type),
-        .jal_enable             (jal_enable),
-        .jalr_enable            (jalr_enable),
-        .branch_enable          (branch_enable),
         .data_mem_read_enable   (data_mem_read_enable),
         .data_mem_write_enable  (data_mem_write_enable),
-        .reg_writeback_select   (reg_writeback_select)
+        .reg_writeback_select   (reg_writeback_select),
+        .take_branch            (take_branch),
+        .next_pc_select         (next_pc_select)
     );
 
     control_transfer control_transfer (
-        .branch_enable      (branch_enable),
-        .jal_enable         (jal_enable),
-        .jalr_enable        (jalr_enable),
         .result_equal_zero  (alu_result_equal_zero),
         .inst_funct3        (inst_funct3),
-        .next_pc_select     (next_pc_select)
+        .take_branch        (take_branch)
     );
 
     alu_control alu_control(

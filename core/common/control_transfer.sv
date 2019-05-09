@@ -7,32 +7,21 @@
 `include "constants.sv"
 
 module control_transfer (
-    input  branch_enable,
-    input  jal_enable,
-    input  jalr_enable,
     input  result_equal_zero,
     input  [2:0] inst_funct3,
-
-    output logic [1:0] next_pc_select
+    output take_branch
 );
 
-    always_comb begin
-        next_pc_select = `CTL_PC_PC4;
-        if (branch_enable)
-            case (inst_funct3)
-                `FUNCT3_BRANCH_EQ:  next_pc_select = result_equal_zero ? `CTL_PC_PC_IMM : `CTL_PC_PC4;
-                `FUNCT3_BRANCH_NE:  next_pc_select = result_equal_zero ? `CTL_PC_PC4    : `CTL_PC_PC_IMM;
-                `FUNCT3_BRANCH_LT:  next_pc_select = result_equal_zero ? `CTL_PC_PC4    : `CTL_PC_PC_IMM;
-                `FUNCT3_BRANCH_GE:  next_pc_select = result_equal_zero ? `CTL_PC_PC_IMM : `CTL_PC_PC4;
-                `FUNCT3_BRANCH_LTU: next_pc_select = result_equal_zero ? `CTL_PC_PC4    : `CTL_PC_PC_IMM;
-                `FUNCT3_BRANCH_GEU: next_pc_select = result_equal_zero ? `CTL_PC_PC_IMM : `CTL_PC_PC4;
-                default: next_pc_select = 2'bx;
-            endcase
-        else if (jal_enable)
-            next_pc_select = `CTL_PC_PC_IMM;
-        else if (jalr_enable)
-            next_pc_select = `CTL_PC_RS1_IMM;
-    end
+    always_comb
+        case (inst_funct3)
+            `FUNCT3_BRANCH_EQ:  take_branch = result_equal_zero;
+            `FUNCT3_BRANCH_NE:  take_branch = !result_equal_zero;
+            `FUNCT3_BRANCH_LT:  take_branch = !result_equal_zero;
+            `FUNCT3_BRANCH_GE:  take_branch = result_equal_zero;
+            `FUNCT3_BRANCH_LTU: take_branch = !result_equal_zero;
+            `FUNCT3_BRANCH_GEU: take_branch = result_equal_zero;
+            default: take_branch = 1'bx;
+        endcase
 
 endmodule
 
