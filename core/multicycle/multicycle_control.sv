@@ -154,6 +154,7 @@ module multicycle_control (
             `STATE_MEM_READ: begin
                 inst_or_data            = 1'b1;
                 mem_read_enable         = 1'b1;
+                data_write_enable       = 1'b1;
             end
             `STATE_MEM_WRITEBACK: begin
                 regfile_write_enable    = 1'b1;
