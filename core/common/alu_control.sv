@@ -66,8 +66,8 @@ module alu_control (
     
     always_comb
         case (inst_funct3)
-            `FUNCT3_BRANCH_EQ:  branch_funct = `ALU_SUB;
-            `FUNCT3_BRANCH_NE:  branch_funct = `ALU_SUB;
+            `FUNCT3_BRANCH_EQ:  branch_funct = `ALU_SEQ;
+            `FUNCT3_BRANCH_NE:  branch_funct = `ALU_SEQ;
             `FUNCT3_BRANCH_LT:  branch_funct = `ALU_SLT;
             `FUNCT3_BRANCH_GE:  branch_funct = `ALU_SLT;
             `FUNCT3_BRANCH_LTU: branch_funct = `ALU_SLTU;

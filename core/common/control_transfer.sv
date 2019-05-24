@@ -14,8 +14,8 @@ module control_transfer (
 
     always_comb
         case (inst_funct3)
-            `FUNCT3_BRANCH_EQ:  take_branch = result_equal_zero;
-            `FUNCT3_BRANCH_NE:  take_branch = !result_equal_zero;
+            `FUNCT3_BRANCH_EQ:  take_branch = !result_equal_zero;
+            `FUNCT3_BRANCH_NE:  take_branch = result_equal_zero;
             `FUNCT3_BRANCH_LT:  take_branch = !result_equal_zero;
             `FUNCT3_BRANCH_GE:  take_branch = result_equal_zero;
             `FUNCT3_BRANCH_LTU: take_branch = !result_equal_zero;
