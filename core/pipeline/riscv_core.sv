@@ -29,10 +29,6 @@ module riscv_core (
     logic [6:0] inst_opcode;
     logic [2:0] inst_funct3;
     logic [6:0] inst_funct7;
-    logic [4:0] inst_rd;
-    logic [4:0] inst_rs1;
-    logic [4:0] inst_rs2;
-    logic [31:0] immediate;
     logic [1:0] next_pc_select;
     logic [4:0] alu_function;
     logic alu_result_equal_zero;
@@ -45,39 +41,24 @@ module riscv_core (
     pipeline_datapath pipeline_datapath (
         .clock                  (clock),
         .reset                  (reset),
-        .data_mem_read_data     (read_data),
+        ._inst                  (inst),
+        ._data_mem_read_data    (read_data),
         .data_mem_address       (address),
         .data_mem_write_data    (write_data),
-        .immediate              (immediate),
-        .inst_rd                (inst_rd),
-        .inst_rs1               (inst_rs1),
-        .inst_rs2               (inst_rs2),
-        .pc                     (pc),
+        ._pc                    (pc),
+        .inst_opcode            (inst_opcode),
+        .inst_funct3            (inst_funct3),
+        .inst_funct7            (inst_funct7),
         .pc_write_enable        (pc_write_enable),
-        .regfile_write_enable   (regfile_write_enable),
-        .alu_operand_a_select   (alu_operand_a_select),
-        .alu_operand_b_select   (alu_operand_b_select),
-        .reg_writeback_select   (reg_writeback_select),
+        ._regfile_write_enable  (regfile_write_enable),
+        ._alu_operand_a_select  (alu_operand_a_select),
+        ._alu_operand_b_select  (alu_operand_b_select),
+        ._reg_writeback_select  (reg_writeback_select),
         .next_pc_select         (next_pc_select),
         .alu_result_equal_zero  (alu_result_equal_zero),
         .alu_function           (alu_function)
     );
 
-    instruction_decoder instruction_decoder(
-        .inst                   (inst),
-        .inst_opcode            (inst_opcode),
-        .inst_funct7            (inst_funct7),
-        .inst_funct3            (inst_funct3),
-        .inst_rd                (inst_rd),
-        .inst_rs1               (inst_rs1),
-        .inst_rs2               (inst_rs2)
-    );
-    
-    immediate_generator immediate_generator(
-        .inst                   (inst),
-        .immediate              (immediate)
-    );
-    
     pipeline_ctlpath pipeline_ctlpath(
         .inst_opcode            (inst_opcode),
         .inst_funct3            (inst_funct3),

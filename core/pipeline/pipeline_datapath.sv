@@ -10,24 +10,24 @@ module pipeline_datapath (
     input  clock,
     input  reset,
 
-    input  [31:0] data_mem_read_data,
+    input  [31:0] _data_mem_read_data,
     output [31:0] data_mem_address,
     output [31:0] data_mem_write_data,
 
-    input  [31:0] immediate,
-    input  [4:0]  inst_rd,
-    input  [4:0]  inst_rs1,
-    input  [4:0]  inst_rs2,
-    output [31:0] pc,
+    input  [31:0] _inst,
+    output [31:0] _pc,
 
+    output [6:0] inst_opcode,
+    output [2:0] inst_funct3,
+    output [6:0] inst_funct7,
     output alu_result_equal_zero,
     
     // control signals
     input pc_write_enable,
-    input regfile_write_enable,
-    input alu_operand_a_select,
-    input alu_operand_b_select,
-    input [2:0] reg_writeback_select,
+    input _regfile_write_enable,
+    input _alu_operand_a_select,
+    input _alu_operand_b_select,
+    input [2:0] _reg_writeback_select,
     input [1:0] next_pc_select,
     input [4:0] alu_function
 );
@@ -38,61 +38,122 @@ module pipeline_datapath (
     localparam PL_MEM = 3; // memory access
     localparam PL_WB  = 4; // writeback
 
+    logic [31:0] inst[PL_IF:PL_ID];
+    logic [31:0] pc[PL_IF:PL_EX];
+    logic [31:0] data_mem_read_data[PL_MEM:PL_WB];
+    logic regfile_write_enable[PL_ID:PL_WB];
+    logic alu_operand_a_select[PL_ID:PL_EX];
+    logic alu_operand_b_select[PL_ID:PL_EX];
+    logic [2:0] reg_writeback_select[PL_ID:PL_WB];
+
     // register file inputs and outputs
-    logic [31:0] rd_data;
+    logic [31:0] rd_data[PL_WB:PL_WB];
     logic [31:0] rs1_data[PL_ID:PL_EX];
     logic [31:0] rs2_data[PL_ID:PL_EX];
     
     // program counter signals
-    logic [31:0] pc_plus_4;
+    logic [31:0] pc_plus_4[PL_IF:PL_WB];
     logic [31:0] pc_plus_immediate;
     logic [31:0] next_pc;
+    logic [4:0] inst_rd[PL_ID:PL_WB];
+    logic [4:0] inst_rs1[PL_ID:PL_ID];
+    logic [4:0] inst_rs2[PL_ID:PL_ID];
     
     // ALU signals
-    logic [31:0] alu_operand_a;
-    logic [31:0] alu_operand_b;
-    logic [31:0] alu_result;
+    logic [31:0] alu_operand_a[PL_EX:PL_EX];
+    logic [31:0] alu_operand_b[PL_EX:PL_EX];
+    logic [31:0] alu_result[PL_EX:PL_WB];
+    
+    // immediate
+    logic [31:0] immediate[PL_ID:PL_WB];
     
     // memory signals
-    assign data_mem_address     = alu_result;
-    assign data_mem_write_data  = rs2_data;
+    assign data_mem_address     = alu_result[PL_MEM];
+    assign data_mem_write_data  = rs2_data[PL_MEM];
+
+    // ID pipeline registers
+    always_ff @(posedge clock) if (pc_write_enable) begin
+        inst[PL_ID] <= inst[PL_IF];
+        pc[PL_ID] <= pc[PL_IF];
+        pc_plus_4[PL_ID] <= pc_plus_4[PL_IF];
+    end
 
     // EX pipeline registers
     always_ff @(posedge clock) begin
-        rs1_data[PL_EX] = rs1_data[PL_ID];
-        rs2_data[PL_EX] = rs2_data[PL_ID];
+        rs1_data[PL_EX] <= rs1_data[PL_ID];
+        rs2_data[PL_EX] <= rs2_data[PL_ID];
+        immediate[PL_EX] <= immediate[PL_ID];
+        pc[PL_EX] <= pc[PL_ID];
+        pc_plus_4[PL_EX] <= pc_plus_4[PL_ID];
+        inst_rd[PL_EX] <= inst_rd[PL_ID];
+        regfile_write_enable[PL_EX] <= regfile_write_enable[PL_ID];
+        alu_operand_a_select[PL_EX] <= alu_operand_a_select[PL_ID];
+        alu_operand_b_select[PL_EX] <= alu_operand_b_select[PL_ID];
+        reg_writeback_select[PL_EX] <= reg_writeback_select[PL_ID];
     end
+
+    // MEM pipeline registers
+    always_ff @(posedge clock) begin
+        immediate[PL_MEM] <= immediate[PL_EX];
+        alu_result[PL_MEM] <= alu_result[PL_EX];
+        pc_plus_4[PL_MEM] <= pc_plus_4[PL_EX];
+        inst_rd[PL_MEM] <= inst_rd[PL_EX];
+        regfile_write_enable[PL_MEM] <= regfile_write_enable[PL_EX];
+        reg_writeback_select[PL_MEM] <= reg_writeback_select[PL_EX];
+    end
+
+    // WB pipeline registers
+    always_ff @(posedge clock) begin
+        immediate[PL_WB] <= immediate[PL_MEM];
+        alu_result[PL_WB] <= alu_result[PL_MEM];
+        data_mem_read_data[PL_WB] <= data_mem_read_data[PL_MEM];
+        pc_plus_4[PL_WB] <= pc_plus_4[PL_MEM];
+        inst_rd[PL_WB] <= inst_rd[PL_MEM];
+        regfile_write_enable[PL_WB] <= regfile_write_enable[PL_MEM];
+        reg_writeback_select[PL_WB] <= reg_writeback_select[PL_MEM];
+    end
+
+    // inject inputs into pipeline
+    assign inst[PL_IF] = _inst;
+    assign data_mem_read_data[PL_MEM] = _data_mem_read_data;
+    assign regfile_write_enable[PL_ID] = _regfile_write_enable;
+    assign alu_operand_a_select[PL_ID] = _alu_operand_a_select;
+    assign alu_operand_b_select[PL_ID] = _alu_operand_b_select;
+    assign reg_writeback_select[PL_ID] = _reg_writeback_select;
+
+    // extract outputs from pipeline
+    assign _pc = pc[PL_IF];
     
     adder #(
         .WIDTH(32)
     ) adder_pc_plus_4 (
         .operand_a      (32'h00000004),
-        .operand_b      (pc),
-        .result         (pc_plus_4)
+        .operand_b      (pc[PL_IF]),
+        .result         (pc_plus_4[PL_IF])
     );
     
     adder #(
        .WIDTH(32)
     ) adder_pc_plus_immediate (
-        .operand_a      (pc),
-        .operand_b      (immediate),
+        .operand_a      (pc[PL_EX]),
+        .operand_b      (immediate[PL_EX]),
         .result         (pc_plus_immediate)
     );
     
     alu alu(
         .alu_function       (alu_function),
-        .operand_a          (alu_operand_a),
-        .operand_b          (alu_operand_b),
-        .result             (alu_result),
+        .operand_a          (alu_operand_a[PL_EX]),
+        .operand_b          (alu_operand_b[PL_EX]),
+        .result             (alu_result[PL_EX]),
         .result_equal_zero  (alu_result_equal_zero)
     );
     
     multiplexer4 #(
         .WIDTH(32)
     ) mux_next_pc_select (
-        .in0 (pc_plus_4),
+        .in0 (pc_plus_4[PL_IF]),
         .in1 (pc_plus_immediate),
-        .in2 ({alu_result[31:1], 1'b0}),
+        .in2 ({alu_result[PL_EX][31:1], 1'b0}),
         .in3 (32'b0),
         .sel (next_pc_select),
         .out (next_pc)
@@ -102,33 +163,33 @@ module pipeline_datapath (
         .WIDTH(32)
     ) mux_operand_a (
         .in0 (rs1_data[PL_EX]),
-        .in1 (pc),
-        .sel (alu_operand_a_select),
-        .out (alu_operand_a)
+        .in1 (pc[PL_EX]),
+        .sel (alu_operand_a_select[PL_EX]),
+        .out (alu_operand_a[PL_EX])
     );
     
     multiplexer2 #(
         .WIDTH(32)
     ) mux_operand_b (
         .in0 (rs2_data[PL_EX]),
-        .in1 (immediate),
-        .sel (alu_operand_b_select),
-        .out (alu_operand_b)
+        .in1 (immediate[PL_EX]),
+        .sel (alu_operand_b_select[PL_EX]),
+        .out (alu_operand_b[PL_EX])
     );
     
     multiplexer8 #(
         .WIDTH(32)
     ) mux_reg_writeback (
-        .in0 (alu_result),
-        .in1 (data_mem_read_data),
-        .in2 (pc_plus_4),
-        .in3 (immediate),
+        .in0 (alu_result[PL_WB]),
+        .in1 (data_mem_read_data[PL_WB]),
+        .in2 (pc_plus_4[PL_WB]),
+        .in3 (immediate[PL_WB]),
         .in4 (32'b0),
         .in5 (32'b0),
         .in6 (32'b0),
         .in7 (32'b0),
-        .sel (reg_writeback_select),
-        .out (rd_data)
+        .sel (reg_writeback_select[PL_WB]),
+        .out (rd_data[PL_WB])
     );
     
     register #(
@@ -139,19 +200,34 @@ module pipeline_datapath (
         .reset              (reset),
         .write_enable       (pc_write_enable),
         .next               (next_pc),
-        .value              (pc)
+        .value              (pc[PL_IF])
     );
     
     regfile regfile(
         .clock              (clock),
-        .write_enable       (regfile_write_enable),
-        .rd_address         (inst_rd),
-        .rs1_address        (inst_rs1),
-        .rs2_address        (inst_rs2),
-        .rd_data            (rd_data),
+        .write_enable       (regfile_write_enable[PL_WB]),
+        .rd_address         (inst_rd[PL_WB]),
+        .rs1_address        (inst_rs1[PL_ID]),
+        .rs2_address        (inst_rs2[PL_ID]),
+        .rd_data            (rd_data[PL_WB]),
         .rs1_data           (rs1_data[PL_ID]),
         .rs2_data           (rs2_data[PL_ID])
     );
 
+    instruction_decoder instruction_decoder(
+        .inst                   (inst[PL_ID]),
+        .inst_opcode            (inst_opcode),
+        .inst_funct7            (inst_funct7),
+        .inst_funct3            (inst_funct3),
+        .inst_rd                (inst_rd[PL_ID]),
+        .inst_rs1               (inst_rs1[PL_ID]),
+        .inst_rs2               (inst_rs2[PL_ID])
+    );
+    
+    immediate_generator immediate_generator(
+        .inst                   (inst[PL_ID]),
+        .immediate              (immediate[PL_ID])
+    );
+    
 endmodule
 
