@@ -14,12 +14,12 @@ module singlecycle_datapath (
     output [31:0] data_mem_address,
     output [31:0] data_mem_write_data,
 
-    input  [31:0] immediate,
-    input  [4:0]  inst_rd,
-    input  [4:0]  inst_rs1,
-    input  [4:0]  inst_rs2,
+    input  [31:0] inst,
     output [31:0] pc,
 
+    output [6:0] inst_opcode,
+    output [2:0] inst_funct3,
+    output [6:0] inst_funct7,
     output alu_result_equal_zero,
     
     // control signals
@@ -36,6 +36,9 @@ module singlecycle_datapath (
     logic [31:0] rd_data;
     logic [31:0] rs1_data;
     logic [31:0] rs2_data;
+    logic  [4:0]  inst_rd;
+    logic  [4:0]  inst_rs1;
+    logic  [4:0]  inst_rs2;
     
     // program counter signals
     logic [31:0] pc_plus_4;
@@ -46,6 +49,9 @@ module singlecycle_datapath (
     logic [31:0] alu_operand_a;
     logic [31:0] alu_operand_b;
     logic [31:0] alu_result;
+    
+    // immediate
+    logic [31:0] immediate;
     
     // memory signals
     assign data_mem_address     = alu_result;
@@ -141,5 +147,20 @@ module singlecycle_datapath (
         .rs2_data           (rs2_data)
     );
 
+    instruction_decoder instruction_decoder(
+        .inst                   (inst),
+        .inst_opcode            (inst_opcode),
+        .inst_funct7            (inst_funct7),
+        .inst_funct3            (inst_funct3),
+        .inst_rd                (inst_rd),
+        .inst_rs1               (inst_rs1),
+        .inst_rs2               (inst_rs2)
+    );
+    
+    immediate_generator immediate_generator(
+        .inst                   (inst),
+        .immediate              (immediate)
+    );
+    
 endmodule
 
