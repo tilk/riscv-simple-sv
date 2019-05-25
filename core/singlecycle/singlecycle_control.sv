@@ -13,7 +13,7 @@ module singlecycle_control (
     output logic regfile_write_enable,
     output logic alu_operand_a_select,
     output logic alu_operand_b_select,
-    output logic [2:0] alu_op_type,
+    output logic [1:0] alu_op_type,
     output logic data_mem_read_enable,
     output logic data_mem_write_enable,
     output logic [2:0] reg_writeback_select,
@@ -31,12 +31,12 @@ module singlecycle_control (
     always_comb begin
         pc_write_enable         = 1'b1;
         regfile_write_enable    = 1'b0;
-        alu_operand_a_select    = 1'b0;
-        alu_operand_b_select    = 1'b0;
-        alu_op_type             = `CTL_ALU_ZERO;
+        alu_operand_a_select    = 1'bx;
+        alu_operand_b_select    = 1'bx;
+        alu_op_type             = 2'bx;
         data_mem_read_enable    = 1'b0;
         data_mem_write_enable   = 1'b0;
-        reg_writeback_select    = `CTL_WRITEBACK_ALU;
+        reg_writeback_select    = 3'bx;
     
         case (inst_opcode)
             `OPCODE_LOAD:
@@ -118,7 +118,6 @@ module singlecycle_control (
                 regfile_write_enable    = 1'b1;
                 alu_operand_a_select    = `CTL_ALU_A_RS1;
                 alu_operand_b_select    = `CTL_ALU_B_RS2;
-                alu_op_type             = `CTL_ALU_ZERO;
                 reg_writeback_select    = `CTL_WRITEBACK_IMM;
             end
     
@@ -175,12 +174,8 @@ module singlecycle_control (
             begin
                 pc_write_enable         = 1'bx;
                 regfile_write_enable    = 1'bx;
-                alu_operand_a_select    = 1'bx;
-                alu_operand_b_select    = 1'bx;
-                alu_op_type             = 3'bx;
                 data_mem_read_enable    = 1'bx;
                 data_mem_write_enable   = 1'bx;
-                reg_writeback_select    = 3'bx;
             end
         endcase
     end

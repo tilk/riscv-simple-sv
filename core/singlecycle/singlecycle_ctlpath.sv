@@ -24,7 +24,7 @@ module singlecycle_ctlpath (
 );
 
     logic take_branch;
-    logic [2:0] alu_op_type;
+    logic [1:0] alu_op_type;
 
     singlecycle_control singlecycle_control(
         .inst_opcode            (inst_opcode),

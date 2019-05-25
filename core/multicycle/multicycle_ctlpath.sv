@@ -32,7 +32,7 @@ module multicycle_ctlpath (
     output [2:0] data_format
 );
 
-    logic [2:0] alu_op_type;
+    logic [1:0] alu_op_type;
     logic take_branch;
 
     multicycle_control multicycle_control(

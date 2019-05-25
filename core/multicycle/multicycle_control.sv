@@ -13,7 +13,7 @@ module multicycle_control (
     input take_branch,
 
     // control signals
-    output logic [2:0] alu_op_type,
+    output logic [1:0] alu_op_type,
     output logic [1:0] alu_operand_a_select,
     output logic [1:0] alu_operand_b_select,
     output logic pc_write_enable,
@@ -91,7 +91,7 @@ module multicycle_control (
         endcase
 
     always_comb begin
-        alu_op_type             = 3'bx;
+        alu_op_type             = 2'bx;
         last_pc_write_enable    = 1'b0;
         alu_out_write_enable    = 1'b0;
         inst_write_enable       = 1'b0;

@@ -98,7 +98,6 @@
 `define FUNCT3_SYSTEM_CSRRCI    3'b111
 
 // ALU operations
-`define ALU_ZERO    5'b00000
 `define ALU_ADD     5'b00001
 `define ALU_SUB     5'b00010
 `define ALU_SLL     5'b00011
@@ -120,11 +119,10 @@
 `define ALU_REMU    5'b10011
 
 // ALU op types
-`define CTL_ALU_ZERO   3'b000
-`define CTL_ALU_ADD    3'b001
-`define CTL_ALU_OP     3'b010
-`define CTL_ALU_OP_IMM 3'b011
-`define CTL_ALU_BRANCH 3'b100
+`define CTL_ALU_ADD    2'b00
+`define CTL_ALU_BRANCH 2'b01
+`define CTL_ALU_OP     2'b10
+`define CTL_ALU_OP_IMM 2'b11
 
 // Register data sources
 `define CTL_WRITEBACK_ALU   3'b000

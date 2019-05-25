@@ -25,7 +25,6 @@ module alu (
     always_comb begin
         result = `ZERO;
         case (alu_function)
-            `ALU_ZERO:  result = `ZERO;
             `ALU_ADD:   result = operand_a +    operand_b;
             `ALU_SUB:   result = operand_a -    operand_b;
             `ALU_SLL:   result = operand_a <<   operand_b[4:0];

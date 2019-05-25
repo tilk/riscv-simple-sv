@@ -7,7 +7,7 @@
 `include "constants.sv"
 
 module alu_control (
-    input        [2:0] alu_op_type,
+    input        [1:0] alu_op_type,
     input        [2:0] inst_funct3,
     input        [6:0] inst_funct7,
     output logic [4:0] alu_function
@@ -24,7 +24,6 @@ module alu_control (
     
     always_comb
         case (alu_op_type)
-            `CTL_ALU_ZERO:          alu_function = `ALU_ZERO;
             `CTL_ALU_ADD:           alu_function = `ALU_ADD;
             `CTL_ALU_OP:            alu_function = op_funct;
             `CTL_ALU_OP_IMM:        alu_function = op_imm_funct;
@@ -54,7 +53,7 @@ module alu_control (
             `FUNCT3_ALU_SHIFTR:     default_funct = `ALU_SRL;
             `FUNCT3_ALU_OR:         default_funct = `ALU_OR;
             `FUNCT3_ALU_AND:        default_funct = `ALU_AND;
-            default:                default_funct = `ALU_ZERO;
+            default:                default_funct = 5'bx;
         endcase
     
     always_comb
