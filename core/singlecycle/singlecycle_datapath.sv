@@ -132,7 +132,6 @@ module singlecycle_datapath (
     
     regfile regfile(
         .clock              (clock),
-        .reset              (reset),
         .write_enable       (regfile_write_enable),
         .rd_address         (inst_rd),
         .rs1_address        (inst_rs1),
