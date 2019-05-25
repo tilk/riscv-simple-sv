@@ -28,6 +28,7 @@ module riscv_core (
     logic [2:0] reg_writeback_select;
     logic [6:0] inst_opcode;
     logic [2:0] inst_funct3;
+    logic [2:0] data_format;
     logic [6:0] inst_funct7;
     logic [1:0] next_pc_select;
     logic [4:0] alu_function;
@@ -35,6 +36,8 @@ module riscv_core (
     logic [31:0] read_data;
     logic [31:0] write_data;
     logic [31:0] address;
+    logic read_enable_id;
+    logic write_enable_id;
     logic read_enable;
     logic write_enable;
 
@@ -43,8 +46,11 @@ module riscv_core (
         .reset                  (reset),
         ._inst                  (inst),
         ._data_mem_read_data    (read_data),
-        .data_mem_address       (address),
-        .data_mem_write_data    (write_data),
+        ._data_mem_address      (address),
+        ._data_mem_write_data   (write_data),
+        ._data_mem_read_enable  (read_enable),
+        ._data_mem_write_enable (write_enable),
+        ._data_mem_format       (data_format),
         ._pc                    (pc),
         .inst_opcode            (inst_opcode),
         .inst_funct3            (inst_funct3),
@@ -56,7 +62,9 @@ module riscv_core (
         ._reg_writeback_select  (reg_writeback_select),
         .next_pc_select         (next_pc_select),
         .alu_result_equal_zero  (alu_result_equal_zero),
-        .alu_function           (alu_function)
+        .alu_function           (alu_function),
+        ._read_enable           (read_enable_id),
+        ._write_enable          (write_enable_id)
     );
 
     pipeline_ctlpath pipeline_ctlpath(
@@ -68,8 +76,8 @@ module riscv_core (
         .regfile_write_enable   (regfile_write_enable),
         .alu_operand_a_select   (alu_operand_a_select),
         .alu_operand_b_select   (alu_operand_b_select),
-        .data_mem_read_enable   (read_enable),
-        .data_mem_write_enable  (write_enable),
+        .data_mem_read_enable   (read_enable_id),
+        .data_mem_write_enable  (write_enable_id),
         .reg_writeback_select   (reg_writeback_select),
         .alu_function           (alu_function),
         .next_pc_select         (next_pc_select)
@@ -79,7 +87,7 @@ module riscv_core (
         .clock                  (clock),
         .read_enable            (read_enable),
         .write_enable           (write_enable),
-        .data_format            (inst_funct3),
+        .data_format            (data_format),
         .address                (address),
         .write_data             (write_data),
         .read_data              (read_data),

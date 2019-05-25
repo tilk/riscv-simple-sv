@@ -11,8 +11,11 @@ module pipeline_datapath (
     input  reset,
 
     input  [31:0] _data_mem_read_data,
-    output [31:0] data_mem_address,
-    output [31:0] data_mem_write_data,
+    output [31:0] _data_mem_address,
+    output [31:0] _data_mem_write_data,
+    output _data_mem_read_enable,
+    output _data_mem_write_enable,
+    output [2:0] _data_mem_format,
 
     input  [31:0] _inst,
     output [31:0] _pc,
@@ -29,7 +32,9 @@ module pipeline_datapath (
     input _alu_operand_b_select,
     input [2:0] _reg_writeback_select,
     input [1:0] next_pc_select,
-    input [4:0] alu_function
+    input [4:0] alu_function,
+    input _read_enable,
+    input _write_enable
 );
     // names for pipeline steps
     localparam PL_IF  = 0; // instruction fetch
@@ -45,6 +50,9 @@ module pipeline_datapath (
     logic alu_operand_a_select[PL_ID:PL_EX];
     logic alu_operand_b_select[PL_ID:PL_EX];
     logic [2:0] reg_writeback_select[PL_ID:PL_WB];
+    logic [2:0] data_mem_format[PL_ID:PL_MEM];
+    logic data_mem_read_enable[PL_ID:PL_MEM];
+    logic data_mem_write_enable[PL_ID:PL_MEM];
 
     // register file inputs and outputs
     logic [31:0] rd_data[PL_WB:PL_WB];
@@ -67,10 +75,6 @@ module pipeline_datapath (
     // immediate
     logic [31:0] immediate[PL_ID:PL_WB];
     
-    // memory signals
-    assign data_mem_address     = alu_result[PL_MEM];
-    assign data_mem_write_data  = rs2_data[PL_MEM];
-
     // ID pipeline registers
     always_ff @(posedge clock) if (pc_write_enable) begin
         inst[PL_ID] <= inst[PL_IF];
@@ -90,6 +94,9 @@ module pipeline_datapath (
         alu_operand_a_select[PL_EX] <= alu_operand_a_select[PL_ID];
         alu_operand_b_select[PL_EX] <= alu_operand_b_select[PL_ID];
         reg_writeback_select[PL_EX] <= reg_writeback_select[PL_ID];
+        data_mem_format[PL_EX] <= data_mem_format[PL_ID];
+        data_mem_read_enable[PL_EX] <= data_mem_read_enable[PL_ID];
+        data_mem_write_enable[PL_EX] <= data_mem_write_enable[PL_ID];
     end
 
     // MEM pipeline registers
@@ -100,6 +107,9 @@ module pipeline_datapath (
         inst_rd[PL_MEM] <= inst_rd[PL_EX];
         regfile_write_enable[PL_MEM] <= regfile_write_enable[PL_EX];
         reg_writeback_select[PL_MEM] <= reg_writeback_select[PL_EX];
+        data_mem_format[PL_MEM] <= data_mem_format[PL_EX];
+        data_mem_read_enable[PL_MEM] <= data_mem_read_enable[PL_EX];
+        data_mem_write_enable[PL_MEM] <= data_mem_write_enable[PL_EX];
     end
 
     // WB pipeline registers
@@ -115,14 +125,21 @@ module pipeline_datapath (
 
     // inject inputs into pipeline
     assign inst[PL_IF] = _inst;
-    assign data_mem_read_data[PL_MEM] = _data_mem_read_data;
-    assign regfile_write_enable[PL_ID] = _regfile_write_enable;
-    assign alu_operand_a_select[PL_ID] = _alu_operand_a_select;
-    assign alu_operand_b_select[PL_ID] = _alu_operand_b_select;
-    assign reg_writeback_select[PL_ID] = _reg_writeback_select;
+    assign data_mem_read_data[PL_MEM]   = _data_mem_read_data;
+    assign regfile_write_enable[PL_ID]  = _regfile_write_enable;
+    assign alu_operand_a_select[PL_ID]  = _alu_operand_a_select;
+    assign alu_operand_b_select[PL_ID]  = _alu_operand_b_select;
+    assign reg_writeback_select[PL_ID]  = _reg_writeback_select;
+    assign data_mem_read_enable[PL_ID]  = _read_enable;
+    assign data_mem_write_enable[PL_ID] = _write_enable;
 
     // extract outputs from pipeline
     assign _pc = pc[PL_IF];
+    assign _data_mem_address      = alu_result[PL_MEM];
+    assign _data_mem_write_data   = rs2_data[PL_MEM];
+    assign _data_mem_format       = data_mem_format[PL_MEM];
+    assign _data_mem_read_enable  = data_mem_read_enable[PL_MEM];
+    assign _data_mem_write_enable = data_mem_write_enable[PL_MEM];
     
     adder #(
         .WIDTH(32)
