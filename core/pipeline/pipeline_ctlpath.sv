@@ -11,6 +11,7 @@ module pipeline_ctlpath (
     input  [2:0] inst_funct3,
     input  [6:0] inst_funct7,
     input  alu_result_equal_zero,
+    input  branch_status,
 
     output pc_write_enable,
     output regfile_write_enable,
@@ -37,7 +38,8 @@ module pipeline_ctlpath (
         .data_mem_write_enable  (data_mem_write_enable),
         .reg_writeback_select   (reg_writeback_select),
         .take_branch            (take_branch),
-        .next_pc_select         (next_pc_select)
+        .next_pc_select         (next_pc_select),
+        .branch_status          (branch_status)
     );
 
     control_transfer control_transfer (

@@ -24,6 +24,7 @@ module pipeline_datapath (
     output [2:0] inst_funct3,
     output [6:0] inst_funct7,
     output alu_result_equal_zero,
+    output _branch_status,
     
     // control signals
     input pc_write_enable,
@@ -53,6 +54,7 @@ module pipeline_datapath (
     logic [2:0] data_mem_format[PL_ID:PL_MEM];
     logic data_mem_read_enable[PL_ID:PL_MEM];
     logic data_mem_write_enable[PL_ID:PL_MEM];
+    logic branch_status[PL_ID:PL_EX];
 
     // register file inputs and outputs
     logic [31:0] rd_data[PL_WB:PL_WB];
@@ -61,7 +63,7 @@ module pipeline_datapath (
     
     // program counter signals
     logic [31:0] pc_plus_4[PL_IF:PL_WB];
-    logic [31:0] pc_plus_immediate;
+    logic [31:0] pc_plus_immediate[PL_EX:PL_EX];
     logic [31:0] next_pc;
     logic [4:0] inst_rd[PL_ID:PL_WB];
     logic [4:0] inst_rs1[PL_ID:PL_ID];
@@ -76,14 +78,21 @@ module pipeline_datapath (
     logic [31:0] immediate[PL_ID:PL_WB];
     
     // ID pipeline registers
-    always_ff @(posedge clock) if (pc_write_enable) begin
+    always_ff @(posedge clock or posedge reset) if (reset) begin
+        inst[PL_ID] <= 32'h00000013; // nop
+    end else if (pc_write_enable) begin
         inst[PL_ID] <= inst[PL_IF];
         pc[PL_ID] <= pc[PL_IF];
         pc_plus_4[PL_ID] <= pc_plus_4[PL_IF];
     end
 
     // EX pipeline registers
-    always_ff @(posedge clock) begin
+    always_ff @(posedge clock or posedge reset) if (reset) begin
+        regfile_write_enable[PL_EX] <= 1'b0;
+        data_mem_read_enable[PL_EX] <= 1'b0;
+        data_mem_write_enable[PL_EX] <= 1'b0;
+        branch_status[PL_EX] <= 1'b0;
+    end else begin
         rs1_data[PL_EX] <= rs1_data[PL_ID];
         rs2_data[PL_EX] <= rs2_data[PL_ID];
         immediate[PL_EX] <= immediate[PL_ID];
@@ -97,10 +106,15 @@ module pipeline_datapath (
         data_mem_format[PL_EX] <= data_mem_format[PL_ID];
         data_mem_read_enable[PL_EX] <= data_mem_read_enable[PL_ID];
         data_mem_write_enable[PL_EX] <= data_mem_write_enable[PL_ID];
+        branch_status[PL_EX] <= branch_status[PL_ID];
     end
 
     // MEM pipeline registers
-    always_ff @(posedge clock) begin
+    always_ff @(posedge clock or posedge reset) if (reset) begin
+        regfile_write_enable[PL_MEM] <= 1'b0;
+        data_mem_read_enable[PL_MEM] <= 1'b0;
+        data_mem_write_enable[PL_MEM] <= 1'b0;
+    end else begin
         immediate[PL_MEM] <= immediate[PL_EX];
         alu_result[PL_MEM] <= alu_result[PL_EX];
         pc_plus_4[PL_MEM] <= pc_plus_4[PL_EX];
@@ -113,7 +127,9 @@ module pipeline_datapath (
     end
 
     // WB pipeline registers
-    always_ff @(posedge clock) begin
+    always_ff @(posedge clock or posedge reset) if (reset) begin
+        regfile_write_enable[PL_WB] <= 1'b0;
+    end else begin
         immediate[PL_WB] <= immediate[PL_MEM];
         alu_result[PL_WB] <= alu_result[PL_MEM];
         data_mem_read_data[PL_WB] <= data_mem_read_data[PL_MEM];
@@ -132,6 +148,7 @@ module pipeline_datapath (
     assign reg_writeback_select[PL_ID]  = _reg_writeback_select;
     assign data_mem_read_enable[PL_ID]  = _read_enable;
     assign data_mem_write_enable[PL_ID] = _write_enable;
+    assign branch_status[PL_ID] = next_pc_select != 2'b0;
 
     // extract outputs from pipeline
     assign _pc = pc[PL_IF];
@@ -140,6 +157,7 @@ module pipeline_datapath (
     assign _data_mem_format       = data_mem_format[PL_MEM];
     assign _data_mem_read_enable  = data_mem_read_enable[PL_MEM];
     assign _data_mem_write_enable = data_mem_write_enable[PL_MEM];
+    assign _branch_status         = branch_status[PL_EX];
     
     adder #(
         .WIDTH(32)
@@ -154,7 +172,7 @@ module pipeline_datapath (
     ) adder_pc_plus_immediate (
         .operand_a      (pc[PL_EX]),
         .operand_b      (immediate[PL_EX]),
-        .result         (pc_plus_immediate)
+        .result         (pc_plus_immediate[PL_EX])
     );
     
     alu alu(
@@ -169,9 +187,9 @@ module pipeline_datapath (
         .WIDTH(32)
     ) mux_next_pc_select (
         .in0 (pc_plus_4[PL_IF]),
-        .in1 (pc_plus_immediate),
+        .in1 (pc_plus_immediate[PL_EX]),
         .in2 ({alu_result[PL_EX][31:1], 1'b0}),
-        .in3 (32'b0),
+        .in3 (pc_plus_4[PL_EX]),
         .sel (next_pc_select),
         .out (next_pc)
     );

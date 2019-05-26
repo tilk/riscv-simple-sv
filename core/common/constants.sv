@@ -142,6 +142,7 @@
 `define CTL_PC_PC4      2'b00
 `define CTL_PC_PC_IMM   2'b01
 `define CTL_PC_RS1_IMM  2'b10
+`define CTL_PC_PC4_BR   2'b11
 
 // PC source in multicycle
 `define MC_CTL_PC_ALU_RES   1'b0

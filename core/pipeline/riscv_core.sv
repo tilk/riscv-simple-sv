@@ -40,6 +40,7 @@ module riscv_core (
     logic write_enable_id;
     logic read_enable;
     logic write_enable;
+    logic branch_status;
 
     pipeline_datapath pipeline_datapath (
         .clock                  (clock),
@@ -64,7 +65,8 @@ module riscv_core (
         .alu_result_equal_zero  (alu_result_equal_zero),
         .alu_function           (alu_function),
         ._read_enable           (read_enable_id),
-        ._write_enable          (write_enable_id)
+        ._write_enable          (write_enable_id),
+        ._branch_status         (branch_status)
     );
 
     pipeline_ctlpath pipeline_ctlpath(
@@ -80,7 +82,8 @@ module riscv_core (
         .data_mem_write_enable  (write_enable_id),
         .reg_writeback_select   (reg_writeback_select),
         .alu_function           (alu_function),
-        .next_pc_select         (next_pc_select)
+        .next_pc_select         (next_pc_select),
+        .branch_status          (branch_status)
     );
     
     data_memory_interface data_memory_interface (
