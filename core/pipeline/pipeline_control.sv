@@ -9,8 +9,10 @@
 module pipeline_control (
     input  [6:0] inst_opcode,
     input  take_branch,
-    input  branch_status,
+    input  [1:0] branch_status,
     output logic pc_write_enable,
+    output logic no_stall,
+    output logic jump_start,
     output logic regfile_write_enable,
     output logic alu_operand_a_select,
     output logic alu_operand_b_select,
@@ -23,7 +25,7 @@ module pipeline_control (
 
     always_comb
         case (inst_opcode)
-            `OPCODE_BRANCH: next_pc_select = branch_status ? `CTL_PC_PC4 : take_branch ? `CTL_PC_PC_IMM : `CTL_PC_PC4_BR;
+            `OPCODE_BRANCH: next_pc_select = take_branch ? `CTL_PC_PC_IMM : `CTL_PC_PC4_BR;
             `OPCODE_JALR:   next_pc_select = `CTL_PC_RS1_IMM;
             `OPCODE_JAL:    next_pc_select = `CTL_PC_PC_IMM;
             default:        next_pc_select = `CTL_PC_PC4;
@@ -38,6 +40,7 @@ module pipeline_control (
         data_mem_read_enable    = 1'b0;
         data_mem_write_enable   = 1'b0;
         reg_writeback_select    = 3'bx;
+        no_stall                = 1'b1;
     
         case (inst_opcode)
             `OPCODE_LOAD:
@@ -139,7 +142,9 @@ module pipeline_control (
                 alu_operand_a_select    = `CTL_ALU_A_RS1;
                 alu_operand_b_select    = `CTL_ALU_B_RS2;
                 alu_op_type             = `CTL_ALU_BRANCH;
-                pc_write_enable         = branch_status;
+                pc_write_enable         = branch_status[0];
+                no_stall                = branch_status[1];
+                jump_start              = !branch_status;
             end
     
             `OPCODE_JALR:
@@ -149,7 +154,9 @@ module pipeline_control (
                 alu_operand_b_select    = `CTL_ALU_B_IMM;
                 alu_op_type             = `CTL_ALU_ADD;
                 reg_writeback_select    = `CTL_WRITEBACK_PC4;
-                pc_write_enable         = branch_status;
+                pc_write_enable         = branch_status[0];
+                no_stall                = branch_status[1];
+                jump_start              = !branch_status;
             end
     
             `OPCODE_JAL:
@@ -159,7 +166,9 @@ module pipeline_control (
                 alu_operand_b_select    = `CTL_ALU_B_IMM;
                 alu_op_type             = `CTL_ALU_ADD;
                 reg_writeback_select    = `CTL_WRITEBACK_PC4;
-                pc_write_enable         = branch_status;
+                pc_write_enable         = branch_status[0];
+                no_stall                = branch_status[1];
+                jump_start              = !branch_status;
             end
     
             // // `OPCODE_SYSTEM:

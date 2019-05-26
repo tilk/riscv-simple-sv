@@ -24,10 +24,12 @@ module pipeline_datapath (
     output [2:0] inst_funct3,
     output [6:0] inst_funct7,
     output alu_result_equal_zero,
-    output _branch_status,
+    output [1:0] _branch_status,
     
     // control signals
     input pc_write_enable,
+    input no_stall,
+    input jump_start,
     input _regfile_write_enable,
     input _alu_operand_a_select,
     input _alu_operand_b_select,
@@ -54,12 +56,12 @@ module pipeline_datapath (
     logic [2:0] data_mem_format[PL_ID:PL_MEM];
     logic data_mem_read_enable[PL_ID:PL_MEM];
     logic data_mem_write_enable[PL_ID:PL_MEM];
-    logic branch_status[PL_ID:PL_EX];
+    logic branch_status[PL_ID:PL_MEM];
 
     // register file inputs and outputs
     logic [31:0] rd_data[PL_WB:PL_WB];
     logic [31:0] rs1_data[PL_ID:PL_EX];
-    logic [31:0] rs2_data[PL_ID:PL_EX];
+    logic [31:0] rs2_data[PL_ID:PL_MEM];
     
     // program counter signals
     logic [31:0] pc_plus_4[PL_IF:PL_WB];
@@ -80,7 +82,7 @@ module pipeline_datapath (
     // ID pipeline registers
     always_ff @(posedge clock or posedge reset) if (reset) begin
         inst[PL_ID] <= 32'h00000013; // nop
-    end else if (pc_write_enable) begin
+    end else if (no_stall) begin
         inst[PL_ID] <= inst[PL_IF];
         pc[PL_ID] <= pc[PL_IF];
         pc_plus_4[PL_ID] <= pc_plus_4[PL_IF];
@@ -115,6 +117,7 @@ module pipeline_datapath (
         data_mem_read_enable[PL_MEM] <= 1'b0;
         data_mem_write_enable[PL_MEM] <= 1'b0;
     end else begin
+        rs2_data[PL_MEM] <= rs2_data[PL_EX];
         immediate[PL_MEM] <= immediate[PL_EX];
         alu_result[PL_MEM] <= alu_result[PL_EX];
         pc_plus_4[PL_MEM] <= pc_plus_4[PL_EX];
@@ -124,6 +127,7 @@ module pipeline_datapath (
         data_mem_format[PL_MEM] <= data_mem_format[PL_EX];
         data_mem_read_enable[PL_MEM] <= data_mem_read_enable[PL_EX];
         data_mem_write_enable[PL_MEM] <= data_mem_write_enable[PL_EX];
+        branch_status[PL_MEM] <= branch_status[PL_EX];
     end
 
     // WB pipeline registers
@@ -148,7 +152,7 @@ module pipeline_datapath (
     assign reg_writeback_select[PL_ID]  = _reg_writeback_select;
     assign data_mem_read_enable[PL_ID]  = _read_enable;
     assign data_mem_write_enable[PL_ID] = _write_enable;
-    assign branch_status[PL_ID] = next_pc_select != 2'b0;
+    assign branch_status[PL_ID] = jump_start;
 
     // extract outputs from pipeline
     assign _pc = pc[PL_IF];
@@ -157,7 +161,7 @@ module pipeline_datapath (
     assign _data_mem_format       = data_mem_format[PL_MEM];
     assign _data_mem_read_enable  = data_mem_read_enable[PL_MEM];
     assign _data_mem_write_enable = data_mem_write_enable[PL_MEM];
-    assign _branch_status         = branch_status[PL_EX];
+    assign _branch_status         = {branch_status[PL_MEM], branch_status[PL_EX]};
     
     adder #(
         .WIDTH(32)
