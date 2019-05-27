@@ -43,6 +43,7 @@ module riscv_core (
     logic [1:0] branch_status;
     logic no_stall;
     logic jump_start;
+    logic want_stall;
 
     pipeline_datapath pipeline_datapath (
         .clock                  (clock),
@@ -65,12 +66,13 @@ module riscv_core (
         ._reg_writeback_select  (reg_writeback_select),
         .next_pc_select         (next_pc_select),
         .alu_result_equal_zero  (alu_result_equal_zero),
-        .alu_function           (alu_function),
+        ._alu_function          (alu_function),
         ._read_enable           (read_enable_id),
         ._write_enable          (write_enable_id),
         ._branch_status         (branch_status),
         .no_stall               (no_stall),
-        .jump_start             (jump_start)
+        .jump_start             (jump_start),
+        .want_stall             (want_stall)
     );
 
     pipeline_ctlpath pipeline_ctlpath(
@@ -89,7 +91,8 @@ module riscv_core (
         .next_pc_select         (next_pc_select),
         .branch_status          (branch_status),
         .no_stall               (no_stall),
-        .jump_start             (jump_start)
+        .jump_start             (jump_start),
+        .want_stall             (want_stall)
     );
     
     data_memory_interface data_memory_interface (

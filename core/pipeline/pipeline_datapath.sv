@@ -25,6 +25,7 @@ module pipeline_datapath (
     output [6:0] inst_funct7,
     output alu_result_equal_zero,
     output [1:0] _branch_status,
+    output want_stall,
     
     // control signals
     input pc_write_enable,
@@ -35,7 +36,7 @@ module pipeline_datapath (
     input _alu_operand_b_select,
     input [2:0] _reg_writeback_select,
     input [1:0] next_pc_select,
-    input [4:0] alu_function,
+    input [4:0] _alu_function,
     input _read_enable,
     input _write_enable
 );
@@ -52,6 +53,7 @@ module pipeline_datapath (
     logic regfile_write_enable[PL_ID:PL_WB];
     logic alu_operand_a_select[PL_ID:PL_EX];
     logic alu_operand_b_select[PL_ID:PL_EX];
+    logic [4:0] alu_function[PL_ID:PL_EX];
     logic [2:0] reg_writeback_select[PL_ID:PL_WB];
     logic [2:0] data_mem_format[PL_ID:PL_MEM];
     logic data_mem_read_enable[PL_ID:PL_MEM];
@@ -104,6 +106,7 @@ module pipeline_datapath (
         regfile_write_enable[PL_EX] <= regfile_write_enable[PL_ID];
         alu_operand_a_select[PL_EX] <= alu_operand_a_select[PL_ID];
         alu_operand_b_select[PL_EX] <= alu_operand_b_select[PL_ID];
+        alu_function[PL_EX] <= alu_function[PL_ID];
         reg_writeback_select[PL_EX] <= reg_writeback_select[PL_ID];
         data_mem_format[PL_EX] <= data_mem_format[PL_ID];
         data_mem_read_enable[PL_EX] <= data_mem_read_enable[PL_ID];
@@ -149,9 +152,11 @@ module pipeline_datapath (
     assign regfile_write_enable[PL_ID]  = _regfile_write_enable;
     assign alu_operand_a_select[PL_ID]  = _alu_operand_a_select;
     assign alu_operand_b_select[PL_ID]  = _alu_operand_b_select;
+    assign alu_function[PL_ID]          = _alu_function;
     assign reg_writeback_select[PL_ID]  = _reg_writeback_select;
     assign data_mem_read_enable[PL_ID]  = _read_enable;
     assign data_mem_write_enable[PL_ID] = _write_enable;
+    assign data_mem_format[PL_ID] = inst_funct3;
     assign branch_status[PL_ID] = jump_start;
 
     // extract outputs from pipeline
@@ -162,6 +167,17 @@ module pipeline_datapath (
     assign _data_mem_read_enable  = data_mem_read_enable[PL_MEM];
     assign _data_mem_write_enable = data_mem_write_enable[PL_MEM];
     assign _branch_status         = {branch_status[PL_MEM], branch_status[PL_EX]};
+
+    assign want_stall =
+           regfile_write_enable[PL_MEM] && inst_rd[PL_MEM] == inst_rs1[PL_ID] && |inst_rd[PL_MEM] && alu_operand_a_select[PL_ID] == `CTL_ALU_A_RS1
+        || regfile_write_enable[PL_MEM] && inst_rd[PL_MEM] == inst_rs2[PL_ID] && |inst_rd[PL_MEM] && alu_operand_b_select[PL_ID] == `CTL_ALU_B_RS2
+        || regfile_write_enable[PL_MEM] && inst_rd[PL_MEM] == inst_rs2[PL_ID] && |inst_rd[PL_MEM] && (data_mem_read_enable[PL_ID] || data_mem_write_enable[PL_ID])
+        || regfile_write_enable[PL_EX] && inst_rd[PL_EX] == inst_rs1[PL_ID] && |inst_rd[PL_EX] && alu_operand_a_select[PL_ID] == `CTL_ALU_A_RS1
+        || regfile_write_enable[PL_EX] && inst_rd[PL_EX] == inst_rs2[PL_ID] && |inst_rd[PL_EX] && alu_operand_b_select[PL_ID] == `CTL_ALU_B_RS2
+        || regfile_write_enable[PL_EX] && inst_rd[PL_EX] == inst_rs2[PL_ID] && |inst_rd[PL_EX] && (data_mem_read_enable[PL_ID] || data_mem_write_enable[PL_ID])
+        || regfile_write_enable[PL_WB] && inst_rd[PL_WB] == inst_rs1[PL_ID] && |inst_rd[PL_WB] && alu_operand_a_select[PL_ID] == `CTL_ALU_A_RS1
+        || regfile_write_enable[PL_WB] && inst_rd[PL_WB] == inst_rs2[PL_ID] && |inst_rd[PL_WB] && alu_operand_b_select[PL_ID] == `CTL_ALU_B_RS2
+        || regfile_write_enable[PL_WB] && inst_rd[PL_WB] == inst_rs2[PL_ID] && |inst_rd[PL_WB] && (data_mem_read_enable[PL_ID] || data_mem_write_enable[PL_ID]);
     
     adder #(
         .WIDTH(32)
@@ -180,7 +196,7 @@ module pipeline_datapath (
     );
     
     alu alu(
-        .alu_function       (alu_function),
+        .alu_function       (alu_function[PL_EX]),
         .operand_a          (alu_operand_a[PL_EX]),
         .operand_b          (alu_operand_b[PL_EX]),
         .result             (alu_result[PL_EX]),

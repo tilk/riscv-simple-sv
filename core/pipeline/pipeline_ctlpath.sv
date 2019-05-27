@@ -12,6 +12,7 @@ module pipeline_ctlpath (
     input  [6:0] inst_funct7,
     input  alu_result_equal_zero,
     input  [1:0] branch_status,
+    input  want_stall,
 
     output pc_write_enable,
     output no_stall,
@@ -33,6 +34,7 @@ module pipeline_ctlpath (
         .inst_opcode            (inst_opcode),
         .pc_write_enable        (pc_write_enable),
         .no_stall               (no_stall),
+        .want_stall             (want_stall),
         .jump_start             (jump_start),
         .regfile_write_enable   (regfile_write_enable),
         .alu_operand_a_select   (alu_operand_a_select),
