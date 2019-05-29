@@ -6,10 +6,10 @@ This is a collection of simple RISC V (rv32i) cores for teaching purposes. They 
 
 Three cores are currently implemented:
 - single-cycle core (one instruction per cycle, separate instruction and data bus),
-- multicycle core (multiple cycles per instruction, single memory bus, only one adder).
-- pipelined core (five-stage pipeline)
+- multicycle core (multiple cycles per instruction, single memory bus, only one adder),
+- pipelined core (five-stage pipeline).
 
-The single-cycle core is adapted from [riscv-simple](https://github.com/arthurbeggs/riscv-simple). Code structure has benn modified for readability, and several bugs have been fixed.
+The single-cycle core is adapted from [riscv-simple](https://github.com/arthurbeggs/riscv-simple). Code structure has been modified for readability, and several bugs have been fixed.
 
 ## Testing 
 
