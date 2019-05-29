@@ -49,18 +49,6 @@ module singlecycle_control (
                 reg_writeback_select    = `CTL_WRITEBACK_DATA;
             end
     
-            // // `OPCODE_LOAD_FP:
-            // begin
-            //     pc_write_enable         = 1'b1;
-            //     regfile_write_enable    = 1'b0;
-            //     alu_operand_a_select    = 1'b0;
-            //     alu_operand_b_select    = 1'b0;
-            //     alu_op_type             = 3'b000;
-            //     data_mem_read_enable    = 1'b0;
-            //     data_mem_write_enable   = 1'b0;
-            //     reg_writeback_select    = 3'b000;
-            // end
-    
             `OPCODE_MISC_MEM:
             begin
                 // Fence - ignore
@@ -92,18 +80,6 @@ module singlecycle_control (
                 data_mem_write_enable   = 1'b1;
             end
     
-            // // `OPCODE_STORE_FP:
-            // begin
-            //     pc_write_enable         = 1'b1;
-            //     regfile_write_enable    = 1'b0;
-            //     alu_operand_a_select    = 1'b0;
-            //     alu_operand_b_select    = 1'b0;
-            //     alu_op_type             = 3'b000;
-            //     data_mem_read_enable    = 1'b0;
-            //     data_mem_write_enable   = 1'b0;
-            //     reg_writeback_select    = 3'b000;
-            // end
-    
             `OPCODE_OP:
             begin
                 regfile_write_enable    = 1'b1;
@@ -120,18 +96,6 @@ module singlecycle_control (
                 alu_operand_b_select    = `CTL_ALU_B_RS2;
                 reg_writeback_select    = `CTL_WRITEBACK_IMM;
             end
-    
-            // // `OPCODE_OP_FP:
-            // begin
-            //     pc_write_enable         = 1'b1;
-            //     regfile_write_enable    = 1'b0;
-            //     alu_operand_a_select    = 1'b0;
-            //     alu_operand_b_select    = 1'b0;
-            //     alu_op_type             = 3'b000;
-            //     data_mem_read_enable    = 1'b0;
-            //     data_mem_write_enable   = 1'b0;
-            //     reg_writeback_select    = 3'b000;
-            // end
     
             `OPCODE_BRANCH:
             begin
@@ -158,18 +122,6 @@ module singlecycle_control (
                 reg_writeback_select    = `CTL_WRITEBACK_PC4;
             end
     
-            // // `OPCODE_SYSTEM:
-            // begin
-            //     pc_write_enable         = 1'b1;
-            //     regfile_write_enable    = 1'b0;
-            //     alu_operand_a_select    = 1'b0;
-            //     alu_operand_b_select    = 1'b0;
-            //     alu_op_type             = 3'b000;
-            //     data_mem_read_enable    = 1'b0;
-            //     data_mem_write_enable   = 1'b0;
-            //     reg_writeback_select    = 3'b000;
-            // end
-            
             default:
             begin
                 pc_write_enable         = 1'bx;
