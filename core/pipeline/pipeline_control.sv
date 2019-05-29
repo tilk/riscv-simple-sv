@@ -25,12 +25,14 @@ module pipeline_control (
 );
 
     always_comb
+        if (branch_status[0])
         case (inst_opcode)
             `OPCODE_BRANCH: next_pc_select = take_branch ? `CTL_PC_PC_IMM : `CTL_PC_PC4_BR;
             `OPCODE_JALR:   next_pc_select = `CTL_PC_RS1_IMM;
             `OPCODE_JAL:    next_pc_select = `CTL_PC_PC_IMM;
             default:        next_pc_select = `CTL_PC_PC4;
         endcase
+        else next_pc_select = `CTL_PC_PC4;
 
     always_comb begin
         pc_write_enable         = 1'b1;
@@ -147,7 +149,7 @@ module pipeline_control (
                 alu_operand_a_select    = `CTL_ALU_A_RS1;
                 alu_operand_b_select    = `CTL_ALU_B_RS2;
                 alu_op_type             = `CTL_ALU_BRANCH;
-                pc_write_enable         = branch_status[0];
+                pc_write_enable         = |branch_status;
                 no_stall                = branch_status[1];
                 jump_start              = !|branch_status;
             end
@@ -159,7 +161,7 @@ module pipeline_control (
                 alu_operand_b_select    = `CTL_ALU_B_IMM;
                 alu_op_type             = `CTL_ALU_ADD;
                 reg_writeback_select    = `CTL_WRITEBACK_PC4;
-                pc_write_enable         = branch_status[0];
+                pc_write_enable         = |branch_status;
                 no_stall                = branch_status[1];
                 jump_start              = !|branch_status;
             end
@@ -171,7 +173,7 @@ module pipeline_control (
                 alu_operand_b_select    = `CTL_ALU_B_IMM;
                 alu_op_type             = `CTL_ALU_ADD;
                 reg_writeback_select    = `CTL_WRITEBACK_PC4;
-                pc_write_enable         = branch_status[0];
+                pc_write_enable         = |branch_status;
                 no_stall                = branch_status[1];
                 jump_start              = !|branch_status;
             end
