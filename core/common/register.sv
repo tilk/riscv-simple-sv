@@ -13,9 +13,9 @@ module register #(
     input  clock,
     input  reset,
     input  write_enable,
-    input  [31:0] next,
+    input  [WIDTH-1:0] next,
 
-    output logic [31:0] value
+    output logic [WIDTH-1:0] value
 );
 
    initial value = INITIAL;
