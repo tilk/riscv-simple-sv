@@ -31,6 +31,7 @@ module pipeline_datapath (
     input pc_write_enable,
     input no_stall,
     input jump_start,
+    input inject_bubble,
     input _regfile_write_enable,
     input _alu_operand_a_select,
     input _alu_operand_b_select,
@@ -112,6 +113,12 @@ module pipeline_datapath (
         data_mem_read_enable[PL_EX] <= data_mem_read_enable[PL_ID];
         data_mem_write_enable[PL_EX] <= data_mem_write_enable[PL_ID];
         branch_status[PL_EX] <= branch_status[PL_ID];
+        if (inject_bubble) begin
+            branch_status[PL_EX] <= 1'b0;
+            regfile_write_enable[PL_EX] <= 1'b0;
+            data_mem_read_enable[PL_EX] <= 1'b0;
+            data_mem_write_enable[PL_EX] <= 1'b0;
+        end
     end
 
     // MEM pipeline registers

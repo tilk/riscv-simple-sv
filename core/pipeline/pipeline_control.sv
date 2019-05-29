@@ -14,6 +14,7 @@ module pipeline_control (
     output logic pc_write_enable,
     output logic no_stall,
     output logic jump_start,
+    output logic inject_bubble,
     output logic regfile_write_enable,
     output logic alu_operand_a_select,
     output logic alu_operand_b_select,
@@ -36,33 +37,60 @@ module pipeline_control (
 
     always_comb begin
         pc_write_enable         = 1'b1;
-        regfile_write_enable    = 1'b0;
-        alu_operand_a_select    = 1'b0;
-        alu_operand_b_select    = 1'b0;
-        alu_op_type             = 2'bx;
-        data_mem_read_enable    = 1'b0;
-        data_mem_write_enable   = 1'b0;
-        reg_writeback_select    = 3'bx;
         no_stall                = 1'b1;
         jump_start              = 1'b0;
-    
+        inject_bubble           = 1'b0;
+
         if (want_stall) begin
             pc_write_enable = 1'b0;
             no_stall        = 1'b0;
+            inject_bubble   = 1'b1;
         end else case (inst_opcode)
+            `OPCODE_BRANCH, `OPCODE_JALR, `OPCODE_JAL:
+            begin
+                pc_write_enable         = |branch_status;
+                no_stall                = branch_status[1];
+                jump_start              = !|branch_status;
+            end
+        endcase
+    end
+
+    always_comb begin
+        regfile_write_enable    = 1'b0;
+        data_mem_read_enable    = 1'b0;
+        data_mem_write_enable   = 1'b0;
+        case (inst_opcode)
             `OPCODE_LOAD:
             begin
                 regfile_write_enable    = 1'b1;
+                data_mem_read_enable    = 1'b1;
+            end
+            `OPCODE_STORE:
+                data_mem_write_enable   = 1'b1;
+            `OPCODE_OP, `OPCODE_OP_IMM, `OPCODE_LUI, `OPCODE_AUIPC:
+                regfile_write_enable    = 1'b1;
+            `OPCODE_JALR, `OPCODE_JAL:
+                regfile_write_enable    = !|branch_status;
+        endcase
+    end
+
+    always_comb begin
+        alu_operand_a_select    = 1'b1; // to avoid useless stalls
+        alu_operand_b_select    = 1'b1; // -- || --
+        alu_op_type             = 2'bx;
+        reg_writeback_select    = 3'bx;
+    
+        case (inst_opcode)
+            `OPCODE_LOAD:
+            begin
                 alu_operand_a_select    = `CTL_ALU_A_RS1;
                 alu_operand_b_select    = `CTL_ALU_B_IMM;
                 alu_op_type             = `CTL_ALU_ADD;
-                data_mem_read_enable    = 1'b1;
                 reg_writeback_select    = `CTL_WRITEBACK_DATA;
             end
     
             // // `OPCODE_LOAD_FP:
             // begin
-            //     pc_write_enable         = 1'b1;
             //     regfile_write_enable    = 1'b0;
             //     alu_operand_a_select    = 1'b0;
             //     alu_operand_b_select    = 1'b0;
@@ -79,7 +107,6 @@ module pipeline_control (
     
             `OPCODE_OP_IMM:
             begin
-                regfile_write_enable    = 1'b1;
                 alu_operand_a_select    = `CTL_ALU_A_RS1;
                 alu_operand_b_select    = `CTL_ALU_B_IMM;
                 alu_op_type             = `CTL_ALU_OP_IMM;
@@ -88,7 +115,6 @@ module pipeline_control (
     
             `OPCODE_AUIPC:
             begin
-                regfile_write_enable    = 1'b1;
                 alu_operand_a_select    = `CTL_ALU_A_PC;
                 alu_operand_b_select    = `CTL_ALU_B_IMM;
                 alu_op_type             = `CTL_ALU_ADD;
@@ -100,12 +126,10 @@ module pipeline_control (
                 alu_operand_a_select    = `CTL_ALU_A_RS1;
                 alu_operand_b_select    = `CTL_ALU_B_IMM;
                 alu_op_type             = `CTL_ALU_ADD;
-                data_mem_write_enable   = 1'b1;
             end
     
             // // `OPCODE_STORE_FP:
             // begin
-            //     pc_write_enable         = 1'b1;
             //     regfile_write_enable    = 1'b0;
             //     alu_operand_a_select    = 1'b0;
             //     alu_operand_b_select    = 1'b0;
@@ -117,7 +141,6 @@ module pipeline_control (
     
             `OPCODE_OP:
             begin
-                regfile_write_enable    = 1'b1;
                 alu_operand_a_select    = `CTL_ALU_A_RS1;
                 alu_operand_b_select    = `CTL_ALU_B_RS2;
                 reg_writeback_select    = `CTL_WRITEBACK_ALU;
@@ -126,7 +149,6 @@ module pipeline_control (
     
             `OPCODE_LUI:
             begin
-                regfile_write_enable    = 1'b1;
                 alu_operand_a_select    = `CTL_ALU_A_RS1;
                 alu_operand_b_select    = `CTL_ALU_B_RS2;
                 reg_writeback_select    = `CTL_WRITEBACK_IMM;
@@ -134,7 +156,6 @@ module pipeline_control (
     
             // // `OPCODE_OP_FP:
             // begin
-            //     pc_write_enable         = 1'b1;
             //     regfile_write_enable    = 1'b0;
             //     alu_operand_a_select    = 1'b0;
             //     alu_operand_b_select    = 1'b0;
@@ -149,38 +170,26 @@ module pipeline_control (
                 alu_operand_a_select    = `CTL_ALU_A_RS1;
                 alu_operand_b_select    = `CTL_ALU_B_RS2;
                 alu_op_type             = `CTL_ALU_BRANCH;
-                pc_write_enable         = |branch_status;
-                no_stall                = branch_status[1];
-                jump_start              = !|branch_status;
             end
     
             `OPCODE_JALR:
             begin
-                regfile_write_enable    = !|branch_status;
                 alu_operand_a_select    = `CTL_ALU_A_RS1;
                 alu_operand_b_select    = `CTL_ALU_B_IMM;
                 alu_op_type             = `CTL_ALU_ADD;
                 reg_writeback_select    = `CTL_WRITEBACK_PC4;
-                pc_write_enable         = |branch_status;
-                no_stall                = branch_status[1];
-                jump_start              = !|branch_status;
             end
     
             `OPCODE_JAL:
             begin
-                regfile_write_enable    = !|branch_status;
                 alu_operand_a_select    = `CTL_ALU_A_PC;
                 alu_operand_b_select    = `CTL_ALU_B_IMM;
                 alu_op_type             = `CTL_ALU_ADD;
                 reg_writeback_select    = `CTL_WRITEBACK_PC4;
-                pc_write_enable         = |branch_status;
-                no_stall                = branch_status[1];
-                jump_start              = !|branch_status;
             end
     
             // // `OPCODE_SYSTEM:
             // begin
-            //     pc_write_enable         = 1'b1;
             //     regfile_write_enable    = 1'b0;
             //     alu_operand_a_select    = 1'b0;
             //     alu_operand_b_select    = 1'b0;
@@ -189,14 +198,6 @@ module pipeline_control (
             //     data_mem_write_enable   = 1'b0;
             //     reg_writeback_select    = 3'b000;
             // end
-            
-            default:
-            begin
-                pc_write_enable         = 1'bx;
-                regfile_write_enable    = 1'bx;
-                data_mem_read_enable    = 1'bx;
-                data_mem_write_enable   = 1'bx;
-            end
         endcase
     end
 

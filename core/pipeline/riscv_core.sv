@@ -44,6 +44,7 @@ module riscv_core (
     logic no_stall;
     logic jump_start;
     logic want_stall;
+    logic inject_bubble;
 
     pipeline_datapath pipeline_datapath (
         .clock                  (clock),
@@ -72,7 +73,8 @@ module riscv_core (
         ._branch_status         (branch_status),
         .no_stall               (no_stall),
         .jump_start             (jump_start),
-        .want_stall             (want_stall)
+        .want_stall             (want_stall),
+        .inject_bubble          (inject_bubble)
     );
 
     pipeline_ctlpath pipeline_ctlpath(
@@ -92,7 +94,8 @@ module riscv_core (
         .branch_status          (branch_status),
         .no_stall               (no_stall),
         .jump_start             (jump_start),
-        .want_stall             (want_stall)
+        .want_stall             (want_stall),
+        .inject_bubble          (inject_bubble)
     );
     
     data_memory_interface data_memory_interface (
