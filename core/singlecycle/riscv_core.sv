@@ -18,7 +18,10 @@ module riscv_core (
     output        bus_write_enable,
 
     input  [31:0] inst,
-    output [31:0] pc
+    output [31:0] pc,
+    output        inst_read_enable,
+    input         inst_wait_req,
+    input         inst_valid
 );
 
     logic pc_write_enable;
@@ -37,6 +40,8 @@ module riscv_core (
     logic [31:0] address;
     logic read_enable;
     logic write_enable;
+
+    assign inst_read_enable = 1'b1;
 
     singlecycle_datapath singlecycle_datapath (
         .clock                  (clock),
@@ -63,6 +68,7 @@ module riscv_core (
         .inst_opcode            (inst_opcode),
         .inst_funct3            (inst_funct3),
         .inst_funct7            (inst_funct7),
+        .inst_valid             (inst_valid),
         .alu_result_equal_zero  (alu_result_equal_zero),
         .pc_write_enable        (pc_write_enable),
         .regfile_write_enable   (regfile_write_enable),

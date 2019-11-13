@@ -49,11 +49,14 @@ int main(int argc, const char **argv, const char **env)
             std::cout << std::hex << std::setfill('0')
                       << "pc=" << std::setw(8) << top->pc << " "
                       << "inst=" << std::setw(8) << top->inst << " "
+                      << (top->inst_read_enable ? "E" : "e") << " "
+                      << (top->inst_wait_req ? "W" : "w") << " "
+                      << (top->inst_valid ? "V" : "v") << " "
                       << "addr=" << std::setw(8) << top->bus_address << " "
                       << "in=" << std::setw(8) << top->bus_read_data << " "
-                      << (top->bus_read_enable ? "1" : "0") << " "
+                      << (top->bus_read_enable ? "E" : "e") << " "
                       << "out=" << std::setw(8) << top->bus_write_data << " "
-                      << (top->bus_write_enable ? "1" : "0") << " " 
+                      << (top->bus_write_enable ? "E" : "e") << " " 
                       << "fmt=" << (int)top->bus_byte_enable << std::endl;
         }
         if (top->bus_write_enable && top->bus_address == 0xfffffff0) {

@@ -11,6 +11,7 @@ module singlecycle_ctlpath (
     input  [2:0] inst_funct3,
     input  [6:0] inst_funct7,
     input  alu_result_equal_zero,
+    input  inst_valid,
 
     output pc_write_enable,
     output regfile_write_enable,
@@ -26,15 +27,25 @@ module singlecycle_ctlpath (
     logic take_branch;
     logic [1:0] alu_op_type;
 
+    logic pc_write_enable_pre;
+    logic regfile_write_enable_pre;
+    logic data_mem_read_enable_pre;
+    logic data_mem_write_enable_pre;
+
+    assign pc_write_enable       = inst_valid && pc_write_enable_pre;
+    assign regfile_write_enable  = inst_valid && regfile_write_enable_pre;
+    assign data_mem_read_enable  = inst_valid && data_mem_read_enable_pre;
+    assign data_mem_write_enable = inst_valid && data_mem_write_enable_pre;
+
     singlecycle_control singlecycle_control(
         .inst_opcode            (inst_opcode),
-        .pc_write_enable        (pc_write_enable),
-        .regfile_write_enable   (regfile_write_enable),
+        .pc_write_enable        (pc_write_enable_pre),
+        .regfile_write_enable   (regfile_write_enable_pre),
         .alu_operand_a_select   (alu_operand_a_select),
         .alu_operand_b_select   (alu_operand_b_select),
         .alu_op_type            (alu_op_type),
-        .data_mem_read_enable   (data_mem_read_enable),
-        .data_mem_write_enable  (data_mem_write_enable),
+        .data_mem_read_enable   (data_mem_read_enable_pre),
+        .data_mem_write_enable  (data_mem_write_enable_pre),
         .reg_writeback_select   (reg_writeback_select),
         .take_branch            (take_branch),
         .next_pc_select         (next_pc_select)
