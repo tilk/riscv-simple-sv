@@ -15,6 +15,8 @@ module riscv_core (
     output [3:0]  bus_byte_enable,
     output        bus_read_enable,
     output        bus_write_enable,
+    output        bus_wait_req,
+    output        bus_valid,
 
     output [31:0] inst,
     output [31:0] pc
@@ -42,6 +44,8 @@ module riscv_core (
     logic [2:0] data_format;
     logic read_enable;
     logic write_enable;
+    logic data_available;
+    logic next_cycle;
 
     multicycle_datapath multicycle_datapath (
         .clock                  (clock),
@@ -90,11 +94,16 @@ module riscv_core (
         .alu_result_equal_zero  (alu_result_equal_zero),
         .mem_read_enable        (read_enable),
         .mem_write_enable       (write_enable),
-        .data_format            (data_format)
+        .data_format            (data_format),
+        .data_available         (data_available),
+        .next_cycle             (next_cycle)
     );
 
     data_memory_interface data_memory_interface (
         .clock                  (clock),
+        .reset                  (reset),
+        .data_available         (data_available),
+        .next_inst              (next_cycle),
         .read_enable            (read_enable),
         .write_enable           (write_enable),
         .data_format            (data_format),
@@ -104,6 +113,8 @@ module riscv_core (
         .bus_address            (bus_address),
         .bus_read_data          (bus_read_data),
         .bus_write_data         (bus_write_data),
+        .bus_wait_req           (bus_wait_req),
+        .bus_valid              (bus_valid),
         .bus_read_enable        (bus_read_enable),
         .bus_write_enable       (bus_write_enable),
         .bus_byte_enable        (bus_byte_enable)

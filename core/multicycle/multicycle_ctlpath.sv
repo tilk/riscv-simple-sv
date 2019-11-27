@@ -13,6 +13,7 @@ module multicycle_ctlpath (
     input [2:0] inst_funct3,
     input [6:0] inst_funct7,
     input alu_result_equal_zero,
+    input data_available,
 
     // control signals
     output [4:0] alu_function,
@@ -29,7 +30,8 @@ module multicycle_ctlpath (
     output mem_write_enable,
     output [2:0] reg_writeback_select,
     output inst_or_data,
-    output [2:0] data_format
+    output [2:0] data_format,
+    output next_cycle
 );
 
     logic [1:0] alu_op_type;
