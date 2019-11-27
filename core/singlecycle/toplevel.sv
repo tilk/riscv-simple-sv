@@ -53,6 +53,8 @@ module toplevel (
     example_data_memory_bus data_memory_bus (
         .clock                  (clock),
         .address                (bus_address),
+        .wait_req               (bus_wait_req),
+        .valid                  (bus_valid),
         .read_data              (bus_read_data),
         .write_data             (bus_write_data),
         .read_enable            (bus_read_enable),
