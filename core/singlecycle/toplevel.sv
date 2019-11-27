@@ -27,7 +27,7 @@ module toplevel (
     riscv_core riscv_core (
         .clock                  (clock),
         .reset                  (reset),
-        .inst                   (inst),
+        .inst_data              (inst),
         .pc                     (pc),
         .inst_read_enable       (inst_read_enable),
         .inst_wait_req          (inst_wait_req),

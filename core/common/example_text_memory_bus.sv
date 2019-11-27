@@ -16,12 +16,12 @@ module example_text_memory_bus (
     output        valid
 );
 
-    parameter LATENCY = 0;
-    parameter MAX_READS = 1;
+    parameter LATENCY = 5;
+    parameter MAX_READS = 3;
 
     logic [31:0] fetched;
 
-    logic [31:0] req_address      [0:LATENCY];
+    logic [31:0] last_address     [0:LATENCY];
     logic        last_read_enable [0:LATENCY];
 
     logic [7:0]  num_reads;
@@ -29,18 +29,18 @@ module example_text_memory_bus (
     integer i;
     
     example_text_memory text_memory(
-        .address    (req_address[LATENCY][`TEXT_BITS-1:2]),
+        .address    (last_address[LATENCY][`TEXT_BITS-1:2]),
         .clock      (clock),
         .q          (fetched)
     );
    
     assign read_data = 
-        read_enable && address >= `TEXT_BEGIN && address <= `TEXT_END
+        last_read_enable[LATENCY] && last_address[LATENCY] >= `TEXT_BEGIN && last_address[LATENCY] <= `TEXT_END
         ? fetched
         : 32'hxxxxxxxx;
 
     assign valid = last_read_enable[LATENCY];
-    assign wait_req = reset || (read_enable && num_reads + read_enable >= MAX_READS && !last_read_enable[LATENCY]);
+    assign wait_req = reset || (num_reads + read_enable >= MAX_READS && !last_read_enable[LATENCY]);
 
     always_comb begin
         num_reads = 0;
@@ -48,8 +48,8 @@ module example_text_memory_bus (
     end
 
     always_ff @(posedge clock) begin
-        for (i = 1; i < LATENCY; i++) req_address[i+1] <= req_address[i];
-        req_address[1] <= req_address[0];
+        for (i = 1; i < LATENCY; i++) last_address[i+1] <= last_address[i];
+        last_address[1] <= last_address[0];
     end
     
     always_ff @(posedge clock or posedge reset)
@@ -59,7 +59,7 @@ module example_text_memory_bus (
             last_read_enable[1] <= last_read_enable[0] && num_reads < MAX_READS;
         end
 
-    assign req_address[0] = address;
+    assign last_address[0] = address;
     assign last_read_enable[0] = read_enable;
 
 endmodule

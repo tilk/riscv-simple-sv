@@ -17,7 +17,7 @@ module riscv_core (
     output        bus_read_enable,
     output        bus_write_enable,
 
-    input  [31:0] inst,
+    input  [31:0] inst_data,
     output [31:0] pc,
     output        inst_read_enable,
     input         inst_wait_req,
@@ -40,8 +40,8 @@ module riscv_core (
     logic [31:0] address;
     logic read_enable;
     logic write_enable;
-
-    assign inst_read_enable = 1'b1;
+    logic inst_available;
+    logic [31:0] inst;
 
     singlecycle_datapath singlecycle_datapath (
         .clock                  (clock),
@@ -68,7 +68,7 @@ module riscv_core (
         .inst_opcode            (inst_opcode),
         .inst_funct3            (inst_funct3),
         .inst_funct7            (inst_funct7),
-        .inst_valid             (inst_valid),
+        .inst_available         (inst_available),
         .alu_result_equal_zero  (alu_result_equal_zero),
         .pc_write_enable        (pc_write_enable),
         .regfile_write_enable   (regfile_write_enable),
@@ -95,6 +95,18 @@ module riscv_core (
         .bus_read_enable        (bus_read_enable),
         .bus_write_enable       (bus_write_enable),
         .bus_byte_enable        (bus_byte_enable)
+    );
+
+    text_memory_interface text_memory_interface (
+        .clock                  (clock),
+        .reset                  (reset),
+        .next_inst              (pc_write_enable),
+        .inst_read_enable       (inst_read_enable),
+        .inst_wait_req          (inst_wait_req),
+        .inst_valid             (inst_valid),
+        .inst_available         (inst_available),
+        .inst_data              (inst_data),
+        .inst                   (inst)
     );
     
 endmodule
