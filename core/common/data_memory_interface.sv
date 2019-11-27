@@ -8,16 +8,21 @@
 
 module data_memory_interface (
     input  clock,
+    input  reset,
+    input  next_inst,
     input  read_enable,
     input  write_enable,
     input  [2:0]  data_format,
     input  [31:0] address,
     input  [31:0] write_data,
     output [31:0] read_data,
+    output data_available,
 
     output       [31:0] bus_address,
     input        [31:0] bus_read_data,
     output       [31:0] bus_write_data,
+    input               bus_wait_req,
+    input               bus_valid,
     output logic [3:0]  bus_byte_enable,
     output              bus_read_enable,
     output              bus_write_enable
@@ -25,10 +30,11 @@ module data_memory_interface (
 
     logic [31:0] position_fix;
     logic [31:0] sign_fix;
+    logic has_request_sent;
 
     assign bus_address      = address;
-    assign bus_write_enable = write_enable;
-    assign bus_read_enable  = read_enable;
+    assign bus_write_enable = write_enable && !has_request_sent;
+    assign bus_read_enable  = read_enable && !has_request_sent;
     assign bus_write_data   = write_data << (8*address[1:0]);
     
     // calculate byte enable
@@ -58,6 +64,10 @@ module data_memory_interface (
     end
 
     assign read_data = sign_fix;
-    
-endmodule
+    assign data_available = bus_valid;
 
+    always_ff @(posedge clock)
+        if (reset) has_request_sent <= 1'b0;
+        else has_request_sent <= !bus_valid && (has_request_sent || (bus_read_enable && !bus_wait_req));
+
+endmodule

@@ -16,6 +16,8 @@ module toplevel (
     output [3:0]  bus_byte_enable,
     output        bus_read_enable,
     output        bus_write_enable,
+    output        bus_wait_req,
+    output        bus_valid,
 
     output [31:0] inst,
     output [31:0] pc,
@@ -35,6 +37,8 @@ module toplevel (
         .bus_address            (bus_address),
         .bus_read_data          (bus_read_data),
         .bus_write_data         (bus_write_data),
+        .bus_wait_req           (bus_wait_req),
+        .bus_valid              (bus_valid),
         .bus_read_enable        (bus_read_enable),
         .bus_write_enable       (bus_write_enable),
         .bus_byte_enable        (bus_byte_enable)
@@ -52,6 +56,7 @@ module toplevel (
     
     example_data_memory_bus data_memory_bus (
         .clock                  (clock),
+        .reset                  (reset),
         .address                (bus_address),
         .wait_req               (bus_wait_req),
         .valid                  (bus_valid),

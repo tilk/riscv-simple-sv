@@ -12,6 +12,7 @@ module singlecycle_ctlpath (
     input  [6:0] inst_funct7,
     input  alu_result_equal_zero,
     input  inst_available,
+    input  data_available,
 
     output pc_write_enable,
     output regfile_write_enable,
@@ -31,8 +32,10 @@ module singlecycle_ctlpath (
     logic regfile_write_enable_pre;
     logic data_mem_read_enable_pre;
     logic data_mem_write_enable_pre;
+    logic stuff_completed;
 
-    assign pc_write_enable       = inst_available && pc_write_enable_pre;
+    assign stuff_completed       = inst_available && (data_available || !data_mem_read_enable_pre);
+    assign pc_write_enable       = stuff_completed && pc_write_enable_pre;
     assign regfile_write_enable  = inst_available && regfile_write_enable_pre;
     assign data_mem_read_enable  = inst_available && data_mem_read_enable_pre;
     assign data_mem_write_enable = inst_available && data_mem_write_enable_pre;
