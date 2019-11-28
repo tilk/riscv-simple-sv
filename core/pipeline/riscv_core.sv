@@ -16,9 +16,14 @@ module riscv_core (
     output [3:0]  bus_byte_enable,
     output        bus_read_enable,
     output        bus_write_enable,
+    input         bus_wait_req,
+    input         bus_valid,
 
-    input  [31:0] inst,
-    output [31:0] pc
+    input  [31:0] inst_data,
+    output [31:0] pc,
+    output        inst_read_enable,
+    input         inst_wait_req,
+    input         inst_valid
 );
 
     logic pc_write_enable;
@@ -45,6 +50,9 @@ module riscv_core (
     logic jump_start;
     logic want_stall;
     logic inject_bubble;
+    logic inst_available;
+    logic data_available;
+    logic [31:0] inst;
 
     pipeline_datapath pipeline_datapath (
         .clock                  (clock),
@@ -100,18 +108,35 @@ module riscv_core (
     
     data_memory_interface data_memory_interface (
         .clock                  (clock),
+        .reset                  (reset),
+        .next_inst              (pc_write_enable),
         .read_enable            (read_enable),
         .write_enable           (write_enable),
         .data_format            (data_format),
         .address                (address),
         .write_data             (write_data),
         .read_data              (read_data),
+        .data_available         (data_available),
         .bus_address            (bus_address),
         .bus_read_data          (bus_read_data),
         .bus_write_data         (bus_write_data),
+        .bus_wait_req           (bus_wait_req),
+        .bus_valid              (bus_valid),
         .bus_read_enable        (bus_read_enable),
         .bus_write_enable       (bus_write_enable),
         .bus_byte_enable        (bus_byte_enable)
+    );
+    
+    text_memory_interface text_memory_interface (
+        .clock                  (clock),
+        .reset                  (reset),
+        .next_inst              (pc_write_enable),
+        .inst_read_enable       (inst_read_enable),
+        .inst_wait_req          (inst_wait_req),
+        .inst_valid             (inst_valid),
+        .inst_available         (inst_available),
+        .inst_data              (inst_data),
+        .inst                   (inst)
     );
     
 endmodule
