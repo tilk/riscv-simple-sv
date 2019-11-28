@@ -9,6 +9,7 @@ module multicycle_control (
     input  clock,
     input  reset,
 
+    input data_available,
     input [6:0] inst_opcode,
     input take_branch,
 
@@ -26,7 +27,8 @@ module multicycle_control (
     output logic mem_read_enable,
     output logic [2:0] reg_writeback_select,
     output logic inst_or_data,
-    output logic next_pc_select
+    output logic next_pc_select,
+    output logic next_cycle
 );
 
     logic [3:0] state;
@@ -48,7 +50,7 @@ module multicycle_control (
     always_ff @(posedge clock or posedge reset)
         if (reset) state <= `STATE_FETCH;
         else case (state)
-            `STATE_FETCH: state <= `STATE_DECODE;
+            `STATE_FETCH: if (next_cycle) state <= `STATE_DECODE;
             `STATE_DECODE:
                 case (inst_opcode)
                     `OPCODE_LOAD, `OPCODE_STORE: state <= `STATE_MEM_ADDR;
@@ -74,7 +76,7 @@ module multicycle_control (
                     `OPCODE_STORE: state <= `STATE_MEM_WRITE;
                     default: state <= 4'bx;
                 endcase
-            `STATE_MEM_READ: state <= `STATE_MEM_WRITEBACK;
+            `STATE_MEM_READ: if (next_cycle) state <= `STATE_MEM_WRITEBACK;
             `STATE_MEM_WRITE: state <= `STATE_FETCH;
             `STATE_MEM_WRITEBACK: state <= `STATE_FETCH;
             `STATE_BRANCH: state <= `STATE_FETCH;
@@ -83,7 +85,13 @@ module multicycle_control (
 
     always_comb
         case (state)
-            `STATE_FETCH:  pc_write_enable = 1'b1;
+            `STATE_FETCH, `STATE_MEM_READ: next_cycle = data_available;
+            default: next_cycle = 1'b1;
+        endcase
+
+    always_comb
+        case (state)
+            `STATE_FETCH:  pc_write_enable = data_available;
             `STATE_BRANCH: pc_write_enable = take_branch;
             `STATE_JAL:    pc_write_enable = 1'b1;
             `STATE_JALR:   pc_write_enable = 1'b1;

@@ -40,6 +40,7 @@ module multicycle_ctlpath (
     multicycle_control multicycle_control(
         .clock                  (clock),
         .reset                  (reset),
+        .data_available         (data_available),
         .inst_opcode            (inst_opcode),
         .pc_write_enable        (pc_write_enable),
         .last_pc_write_enable   (last_pc_write_enable),
@@ -55,7 +56,8 @@ module multicycle_ctlpath (
         .inst_or_data           (inst_or_data),
         .alu_op_type            (alu_op_type),
         .next_pc_select         (next_pc_select),
-        .take_branch            (take_branch)
+        .take_branch            (take_branch),
+        .next_cycle             (next_cycle)
     );
 
     control_transfer control_transfer (
