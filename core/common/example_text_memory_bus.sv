@@ -16,7 +16,7 @@ module example_text_memory_bus (
     output        valid
 );
 
-    parameter LATENCY = 0;
+    parameter LATENCY = 5;
     parameter MAX_READS = 1;
 
     logic [31:0] fetched;

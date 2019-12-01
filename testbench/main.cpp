@@ -63,10 +63,10 @@ int main(int argc, const char **argv, const char **env)
         }
         if (top->bus_write_enable && top->bus_address == 0xfffffff0) {
             if (top->bus_write_data) {
-                std::cout << "PASS" << std::endl;
+                std::cout << "PASS " << time << std::endl;
                 return 0;
             } else {
-                std::cout << "FAIL" << std::endl;
+                std::cout << "FAIL " << time << std::endl;
                 return -1;
             }
         }

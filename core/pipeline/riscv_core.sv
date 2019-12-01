@@ -90,6 +90,8 @@ module riscv_core (
         .inst_funct3            (inst_funct3),
         .inst_funct7            (inst_funct7),
         .alu_result_equal_zero  (alu_result_equal_zero),
+        .inst_available         (inst_available),
+        .data_available         (data_available),
         .pc_write_enable        (pc_write_enable),
         .regfile_write_enable   (regfile_write_enable),
         .alu_operand_a_select   (alu_operand_a_select),

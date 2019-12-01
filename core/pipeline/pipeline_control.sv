@@ -11,6 +11,8 @@ module pipeline_control (
     input  take_branch,
     input  [1:0] branch_status,
     input  want_stall,
+    input  inst_available,
+    input  data_available,
     output logic pc_write_enable,
     output logic no_stall,
     output logic jump_start,
@@ -45,6 +47,9 @@ module pipeline_control (
             pc_write_enable = 1'b0;
             no_stall        = 1'b0;
             inject_bubble   = 1'b1;
+        end else if (!inst_available) begin
+            pc_write_enable = 1'b0;
+            no_stall        = 1'b0;
         end else case (inst_opcode)
             `OPCODE_BRANCH, `OPCODE_JALR, `OPCODE_JAL:
             begin
@@ -60,7 +65,7 @@ module pipeline_control (
         regfile_write_enable    = 1'b0;
         data_mem_read_enable    = 1'b0;
         data_mem_write_enable   = 1'b0;
-        case (inst_opcode)
+        if (inst_available) case (inst_opcode)
             `OPCODE_LOAD:
             begin
                 regfile_write_enable    = 1'b1;

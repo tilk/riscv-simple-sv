@@ -19,7 +19,7 @@ module example_data_memory_bus (
     output        valid
 );
 
-    parameter LATENCY = 0;
+    parameter LATENCY = 5;
     parameter MAX_READS = 1;
     parameter MAX_WRITES = 1;
 
