@@ -44,6 +44,7 @@ module riscv_core (
     logic write_enable;
     logic inst_available;
     logic data_available;
+    logic request_successful;
     logic [31:0] inst;
 
     singlecycle_datapath singlecycle_datapath (
@@ -73,6 +74,7 @@ module riscv_core (
         .inst_funct7            (inst_funct7),
         .inst_available         (inst_available),
         .data_available         (data_available),
+        .request_successful     (request_successful),
         .alu_result_equal_zero  (alu_result_equal_zero),
         .pc_write_enable        (pc_write_enable),
         .regfile_write_enable   (regfile_write_enable),
@@ -96,6 +98,7 @@ module riscv_core (
         .write_data             (write_data),
         .read_data              (read_data),
         .data_available         (data_available),
+        .request_successful     (request_successful),
         .bus_address            (bus_address),
         .bus_read_data          (bus_read_data),
         .bus_write_data         (bus_write_data),

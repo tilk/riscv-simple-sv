@@ -17,6 +17,7 @@ module data_memory_interface (
     input  [31:0] write_data,
     output [31:0] read_data,
     output data_available,
+    output request_successful,
 
     output       [31:0] bus_address,
     input        [31:0] bus_read_data,
@@ -65,6 +66,7 @@ module data_memory_interface (
 
     assign read_data = sign_fix;
     assign data_available = bus_valid;
+    assign request_successful = (bus_read_enable || bus_write_enable) && !bus_wait_req;
 
     always_ff @(posedge clock)
         if (reset) has_request_sent <= 1'b0;
