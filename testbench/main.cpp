@@ -9,28 +9,12 @@
 #include <memory>
 #include <string>
 
-std::string text_file, data_file;
-
-extern "C" const char* text_mem_file()
-{
-    return text_file.c_str();
-}
-
-extern "C" const char* data_mem_file()
-{
-    return data_file.c_str();
-}
-
 int main(int argc, const char **argv, const char **env)
 {
     Verilated::commandArgs(argc, argv);
 
     bool verbose = false;
     const char *str;
-    str = Verilated::commandArgsPlusMatch("text_file=");
-    if (str && str[0]) text_file = str + 11;
-    str = Verilated::commandArgsPlusMatch("data_file=");
-    if (str && str[0]) data_file = str + 11;
     str = Verilated::commandArgsPlusMatch("verbose");
     if (str && str[0]) verbose = true;
 

@@ -46,7 +46,24 @@
 `define TEXT_HEX  text_mem_file()
 `define DATA_HEX  data_mem_file()
 
-import "DPI-C" function string text_mem_file ();
-import "DPI-C" function string data_mem_file ();
+function string text_mem_file ();
+    string s;
+    if ($value$plusargs("text_file=%s", s) != 0)
+        return s;
+    else begin
+        $display("Text memory file not supplied.");
+        $finish;
+    end
+endfunction
+
+function string data_mem_file ();
+    string s;
+    if ($value$plusargs("data_file=%s", s) != 0)
+        return s;
+    else begin
+        $display("Data memory file not supplied.");
+        $finish;
+    end
+endfunction
 
 `endif
