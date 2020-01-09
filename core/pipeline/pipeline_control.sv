@@ -50,7 +50,7 @@ module pipeline_control (
             begin
                 pc_write_enable         = |branch_status;
                 no_stall                = branch_status[1];
-                jump_start              = !|branch_status;
+                jump_start              = !(|branch_status);
             end
             default: ;
         endcase
@@ -71,7 +71,7 @@ module pipeline_control (
             `OPCODE_OP, `OPCODE_OP_IMM, `OPCODE_LUI, `OPCODE_AUIPC:
                 regfile_write_enable    = 1'b1;
             `OPCODE_JALR, `OPCODE_JAL:
-                regfile_write_enable    = !|branch_status;
+                regfile_write_enable    = !(|branch_status);
             default: ;
         endcase
     end
