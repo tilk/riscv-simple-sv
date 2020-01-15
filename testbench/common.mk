@@ -3,6 +3,7 @@ VERILATOR_INCLUDE=/usr/share/verilator/include
 SRCS=$(wildcard *.cpp)
 OBJS=$(SRCS:.cpp=.o)
 CXXFLAGS=-I ${VERILATOR_INCLUDE} -I ${VERILATOR_INCLUDE}/vltstd
+SV_SOURCES=$(wildcard ../../core/common/*.sv) $(wildcard ../../core/$(CORETYPE)/*.sv) config.sv ../common_config.sv
 VFLAGS=-Wno-fatal -I. -I../../core/common/ -I../../core/$(CORETYPE)
 TESTDIR=../../tests
 TESTS=$(notdir $(patsubst %.S,%,$(wildcard $(TESTDIR)/*.S)))
@@ -10,7 +11,7 @@ TESTS=$(notdir $(patsubst %.S,%,$(wildcard $(TESTDIR)/*.S)))
 build: Vtoplevel.h main.cpp
 	${MAKE} run
 
-Vtoplevel.h: $(wildcard ../../core/common/*.sv) $(wildcard ../../core/$(CORETYPE)/*.sv) config.sv
+Vtoplevel.h: $(SV_SOURCES)
 	verilator ${VFLAGS} --cc ../../core/$(CORETYPE)/toplevel.sv --Mdir .
 
 run: $(addsuffix .run,$(TESTS))
