@@ -7,14 +7,14 @@
 `include "constants.sv"
 
 module example_text_memory (
-	input [`TEXT_BITS-3:0] address,
+    input [`TEXT_BITS-3:0] address,
     input clock,
-	output [31:0] q
+    output [31:0] q
 );
 
-    reg [7:0] mem[0:2**`TEXT_BITS-1];
+    logic [31:0] mem[0:2**(`TEXT_BITS-2)-1];
 
-    assign q = { mem[{address,2'd3}], mem[{address,2'd2}], mem[{address,2'd1}], mem[{address,2'd0}] };
+    assign q = mem[address];
 
 `ifdef TEXT_HEX
     initial $readmemh(`TEXT_HEX, mem);

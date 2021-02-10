@@ -8,7 +8,7 @@ before_install:
     - docker pull tilk/riscv-gnu-toolchain
     - docker run --name rv -t -d tilk/riscv-gnu-toolchain /bin/bash
     - docker exec rv apt-get update
-    - docker exec rv apt-get install -y verilator g++
+    - docker exec rv apt-get install -y verilator g++ srecord
     - docker cp . rv:/root/rv
 
 script:

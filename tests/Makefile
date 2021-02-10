@@ -1,11 +1,13 @@
 
 CC=riscv32-unknown-elf-gcc
 LD=riscv32-unknown-elf-ld
+SREC_CAT=srec_cat
 OBJCOPY=riscv32-unknown-elf-objcopy
 LDFLAGS=-Tlink.ld
 SRCS=$(wildcard *.S)
 OBJS=$(SRCS:.S=.o)
 ELFS=$(SRCS:.S=.elf)
+BINS=$(SRCS:.S=.text.vh) $(SRCS:.S=.data.vh)
 VHS=$(SRCS:.S=.text.vh) $(SRCS:.S=.data.vh)
 
 all: ${VHS}
@@ -16,12 +18,15 @@ all: ${VHS}
 %.elf: %.o 
 	${LD} ${LDFLAGS} $< -o $@
 
-%.text.vh: %.elf
-	${OBJCOPY} -O verilog $< $@ -j .init -j .text --change-addresses -0x400000
+%.text.bin: %.elf
+	${OBJCOPY} -O binary $< $@ -j .init -j .text --change-addresses -0x400000
 
-%.data.vh: %.elf
-	${OBJCOPY} -O verilog $< $@ -j .data -j .eh_frame -j .fini_array -j .init_array --change-addresses -0x80000000
+%.data.bin: %.elf
+	${OBJCOPY} -O binary $< $@ -j .data -j .eh_frame -j .fini_array -j .init_array --change-addresses -0x80000000
+
+%.vh: %.bin
+	${SREC_CAT} $< -binary -byte-swap 4 -O $@ -VMem 32
 
 clean:
-	rm -f ${OBJS} ${ELFS} ${VHS}
+	rm -f ${OBJS} ${ELFS} ${BINS} ${VHS}
 

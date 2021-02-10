@@ -15,16 +15,16 @@ module example_data_memory (
 	output [31:0] q
 );
 
-    logic [7:0] mem[0:2**`DATA_BITS-1];
+    logic [31:0] mem[0:2**(`DATA_BITS-2)-1];
 
-    assign q = { mem[{address,2'd3}], mem[{address,2'd2}], mem[{address,2'd1}], mem[{address,2'd0}] };
+    assign q = mem[address];
 
     always_ff @(posedge clock)
         if (wren) begin
-            if (byteena[0]) mem[{address,2'd0}] <= data[0+:8];
-            if (byteena[1]) mem[{address,2'd1}] <= data[8+:8];
-            if (byteena[2]) mem[{address,2'd2}] <= data[16+:8];
-            if (byteena[3]) mem[{address,2'd3}] <= data[24+:8];
+            if (byteena[0]) mem[address][0+:8] <= data[0+:8];
+            if (byteena[1]) mem[address][8+:8] <= data[8+:8];
+            if (byteena[2]) mem[address][16+:8] <= data[16+:8];
+            if (byteena[3]) mem[address][24+:8] <= data[24+:8];
         end
 
 `ifdef DATA_HEX
