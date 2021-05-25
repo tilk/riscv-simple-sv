@@ -15,6 +15,7 @@ module example_data_memory (
 	output [31:0] q
 );
 
+    (* nomem2reg *)
     logic [31:0] mem[0:2**(`DATA_BITS-2)-1];
 
     assign q = mem[address];

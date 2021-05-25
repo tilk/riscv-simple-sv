@@ -11,7 +11,7 @@ module example_text_memory (
     input clock,
     output [31:0] q
 );
-
+    (* nomem2reg *)
     logic [31:0] mem[0:2**(`TEXT_BITS-2)-1];
 
     assign q = mem[address];
