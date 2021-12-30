@@ -1,11 +1,17 @@
 
 VERILATOR_INCLUDE=/usr/share/verilator/include
-VERILATED_SRCS=Vtoplevel.cpp Vtoplevel__Syms.cpp Vtoplevel__Dpi.cpp Vtoplevel___024unit.cpp Vtoplevel__Slow.cpp Vtoplevel___024unit__Slow.cpp
-OBJS=$(VERILATED_SRCS:.cpp=.o) main.o
+SRCS=$(wildcard *.cpp)
+OBJS=$(SRCS:.cpp=.o)
 CXXFLAGS=-I ${VERILATOR_INCLUDE} -I ${VERILATOR_INCLUDE}/vltstd
 VFLAGS=-Wno-fatal -I. -I../../core/common/ -I../../core/$(CORETYPE)
 TESTDIR=../../tests
 TESTS=$(notdir $(patsubst %.S,%,$(wildcard $(TESTDIR)/*.S)))
+
+build: Vtoplevel.h main.cpp
+	${MAKE} run
+
+Vtoplevel.h: $(wildcard ../../core/common/*.sv) $(wildcard ../../core/$(CORETYPE)/*.sv) config.sv
+	verilator ${VFLAGS} --cc ../../core/$(CORETYPE)/toplevel.sv --Mdir .
 
 run: $(addsuffix .run,$(TESTS))
 
@@ -20,9 +26,6 @@ testbench: ${OBJS}
 
 main.cpp: ../main.cpp
 	cp ../main.cpp .
-
-${VERILATED_SRCS}: $(wildcard ../../core/common/*.sv) $(wildcard ../../core/$(CORETYPE)/*.sv) config.sv
-	verilator ${VFLAGS} --cc ../../core/$(CORETYPE)/toplevel.sv --Mdir .
 
 clean:
 	rm -f testbench main.cpp ${OBJS} $(wildcard V*)
