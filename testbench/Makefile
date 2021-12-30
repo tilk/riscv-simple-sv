@@ -1,4 +1,4 @@
-all: build
+build:
 
 %:
 	make -k -C singlecycle $*
