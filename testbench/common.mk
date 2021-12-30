@@ -1,6 +1,6 @@
 
 VERILATOR_INCLUDE=/usr/share/verilator/include
-VERILATED_SRCS=Vtoplevel.cpp Vtoplevel__Syms.cpp Vtoplevel__Dpi.cpp Vtoplevel___024unit.cpp
+VERILATED_SRCS=Vtoplevel.cpp Vtoplevel__Syms.cpp Vtoplevel__Dpi.cpp Vtoplevel___024unit.cpp Vtoplevel__Slow.cpp Vtoplevel___024unit__Slow.cpp
 OBJS=$(VERILATED_SRCS:.cpp=.o) main.o
 CXXFLAGS=-I ${VERILATOR_INCLUDE} -I ${VERILATOR_INCLUDE}/vltstd
 VFLAGS=-Wno-fatal -I. -I../../core/common/ -I../../core/$(CORETYPE)
