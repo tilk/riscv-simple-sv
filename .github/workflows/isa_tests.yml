@@ -6,9 +6,11 @@ jobs:
         steps:
         - uses: actions/checkout@v2
         - name: install dependencies
-          run: sudo apt-get update && sudo apt-get install -y verilator g++ srecord gcc-riscv64-unknown-elf
+          run: sudo apt-get update && sudo apt-get install -y verilator g++ srecord gcc-riscv64-unknown-elf yosys
         - name: build tests
           run: cd tests && make
         - name: run tests
           run: cd testbench && make
+        - name: test synthesis
+          run: cd synth && make
 
