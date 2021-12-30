@@ -14,10 +14,9 @@ module multicycle_control (
 
     // control signals
     output logic [1:0] alu_op_type,
-    output logic [1:0] alu_operand_a_select,
+    output logic alu_operand_a_select,
     output logic [1:0] alu_operand_b_select,
     output logic pc_write_enable,
-    output logic last_pc_write_enable,
     output logic alu_out_write_enable,
     output logic inst_write_enable,
     output logic data_write_enable,
@@ -83,7 +82,7 @@ module multicycle_control (
 
     always_comb
         case (state)
-            `STATE_FETCH:  pc_write_enable = 1'b1;
+            `STATE_DECODE: pc_write_enable = 1'b1;
             `STATE_BRANCH: pc_write_enable = take_branch;
             `STATE_JAL:    pc_write_enable = 1'b1;
             `STATE_JALR:   pc_write_enable = 1'b1;
@@ -92,7 +91,6 @@ module multicycle_control (
 
     always_comb begin
         alu_op_type             = 2'bx;
-        last_pc_write_enable    = 1'b0;
         alu_out_write_enable    = 1'b0;
         inst_write_enable       = 1'b0;
         data_write_enable       = 1'b0;
@@ -101,7 +99,7 @@ module multicycle_control (
         mem_write_enable        = 1'b0;
         reg_writeback_select    = 3'bx;
         inst_or_data            = 1'bx;
-        alu_operand_a_select    = 2'bx;
+        alu_operand_a_select    = 1'bx;
         alu_operand_b_select    = 2'bx;
         next_pc_select          = 1'bx;
         case (state)
@@ -110,27 +108,27 @@ module multicycle_control (
                 inst_or_data            = 1'b0;
                 inst_write_enable       = 1'b1;
                 alu_op_type             = `CTL_ALU_ADD;
-                alu_operand_a_select    = `MC_CTL_ALU_A_PC;
+                alu_operand_a_select    = `CTL_ALU_A_PC;
                 alu_operand_b_select    = `MC_CTL_ALU_B_4;
-                last_pc_write_enable    = 1'b1;
-                next_pc_select          = `MC_CTL_PC_ALU_RES;
+                alu_out_write_enable    = 1'b1;
             end
             `STATE_DECODE: begin
                 alu_op_type             = `CTL_ALU_ADD;
-                alu_operand_a_select    = `MC_CTL_ALU_A_LAST_PC;
+                alu_operand_a_select    = `CTL_ALU_A_PC;
                 alu_operand_b_select    = `MC_CTL_ALU_B_IMM;
                 alu_out_write_enable    = 1'b1;
+                next_pc_select          = `MC_CTL_PC_ALU_OUT;
             end
             `STATE_EXECUTE: begin
                 alu_out_write_enable    = 1'b1;
                 alu_op_type             = `CTL_ALU_OP;
-                alu_operand_a_select    = `MC_CTL_ALU_A_RS1;
+                alu_operand_a_select    = `CTL_ALU_A_RS1;
                 alu_operand_b_select    = `MC_CTL_ALU_B_RS2;
             end
             `STATE_EXECUTE_IMM: begin
                 alu_out_write_enable    = 1'b1;
                 alu_op_type             = `CTL_ALU_OP_IMM;
-                alu_operand_a_select    = `MC_CTL_ALU_A_RS1;
+                alu_operand_a_select    = `CTL_ALU_A_RS1;
                 alu_operand_b_select    = `MC_CTL_ALU_B_IMM;
             end
             `STATE_LUI: begin
@@ -144,7 +142,7 @@ module multicycle_control (
             `STATE_MEM_ADDR: begin
                 alu_out_write_enable    = 1'b1;
                 alu_op_type             = `CTL_ALU_ADD;
-                alu_operand_a_select    = `MC_CTL_ALU_A_RS1;
+                alu_operand_a_select    = `CTL_ALU_A_RS1;
                 alu_operand_b_select    = `MC_CTL_ALU_B_IMM;
             end
             `STATE_MEM_WRITE: begin
@@ -162,7 +160,7 @@ module multicycle_control (
             end
             `STATE_BRANCH: begin
                 alu_op_type             = `CTL_ALU_BRANCH;
-                alu_operand_a_select    = `MC_CTL_ALU_A_RS1;
+                alu_operand_a_select    = `CTL_ALU_A_RS1;
                 alu_operand_b_select    = `MC_CTL_ALU_B_RS2;
                 next_pc_select          = `MC_CTL_PC_ALU_OUT;
             end
@@ -175,7 +173,7 @@ module multicycle_control (
                 regfile_write_enable    = 1'b1;
                 reg_writeback_select    = `CTL_WRITEBACK_PC4;
                 alu_op_type             = `CTL_ALU_ADD;
-                alu_operand_a_select    = `MC_CTL_ALU_A_RS1;
+                alu_operand_a_select    = `CTL_ALU_A_RS1;
                 alu_operand_b_select    = `MC_CTL_ALU_B_IMM;
                 next_pc_select          = `MC_CTL_PC_ALU_RES;
             end
