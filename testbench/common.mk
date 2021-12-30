@@ -3,8 +3,8 @@ VERILATOR_INCLUDE=/usr/share/verilator/include
 SRCS=$(wildcard *.cpp)
 OBJS=$(SRCS:.cpp=.o)
 CXXFLAGS=-I ${VERILATOR_INCLUDE} -I ${VERILATOR_INCLUDE}/vltstd
-SV_SOURCES=$(wildcard ../../core/common/*.sv) $(wildcard ../../core/$(CORETYPE)/*.sv) config.sv ../common_config.sv
-VFLAGS=-Wno-fatal -I. -I../../core/common/ -I../../core/$(CORETYPE)
+SV_SOURCES=$(wildcard ../../core/common/*.sv) $(wildcard ../../core/$(CORETYPE)/*.sv) ../config.sv
+VFLAGS=-Wno-fatal -I.. -I../../core/common/ -I../../core/$(CORETYPE)
 TESTDIR=../../tests
 TESTS=$(notdir $(patsubst %.S,%,$(wildcard $(TESTDIR)/*.S)))
 

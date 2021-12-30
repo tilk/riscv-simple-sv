@@ -1,20 +1,13 @@
 // RISC-V SiMPLE SV -- common configuration for testbench
 // BSD 3-Clause License
-// (c) 2017-2019, Arthur Matos, Marcus Vinicius Lamar, Universidade de Brasília,
+// (c) 2017-2021, Arthur Matos, Marcus Vinicius Lamar, Universidade de Brasília,
 //                Marek Materzok, University of Wrocław
 
-`ifndef RV_COMMON_CONFIG
-`define RV_COMMON_CONFIG
-
-// Select ISA
-`define RV32I
+`ifndef RV_CONFIG
+`define RV_CONFIG
 
 // Select ISA extensions
 // `define M_MODULE    // multiplication and division
-// `define F_MODULE    // floating point operations
-
-// Enable debugging signals
-`define DEBUG
 
 //////////////////////////////////////////
 //              Memory config           //
@@ -34,9 +27,6 @@
 `define DATA_BITS       17
 `define DATA_WIDTH      2**`DATA_BITS
 `define DATA_END        `DATA_BEGIN + `DATA_WIDTH - 1
-
-// Stack start
-`define STACK_ADDRESS   `DATA_END - 3
 
 `define TEXT_HEX  text_mem_file()
 `define DATA_HEX  data_mem_file()
