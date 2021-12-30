@@ -7,9 +7,9 @@
 `include "constants.sv"
 
 module control_transfer (
-    input  result_equal_zero,
-    input  [2:0] inst_funct3,
-    output take_branch
+    input        result_equal_zero,
+    input [2:0]  inst_funct3,
+    output logic take_branch
 );
 
     always_comb
