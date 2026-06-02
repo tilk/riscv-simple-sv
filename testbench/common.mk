@@ -20,7 +20,7 @@ run: $(addsuffix .run,$(TESTS))
 	./testbench +text_file=$(TESTDIR)/$(@:.run=).text.vh +data_file=$(TESTDIR)/$(@:.run=).data.vh
 
 testbench: ${OBJS}
-	${CXX} ${CXXFLAGS} ${OBJS} ${VERILATOR_INCLUDE}/verilated.cpp -o testbench
+	${CXX} ${CXXFLAGS} ${OBJS} ${VERILATOR_INCLUDE}/verilated.cpp ${VERILATOR_INCLUDE}/verilated_threads.cpp -o testbench
 
 %.o: %.cpp
 	${CXX} ${CXXFLAGS} -c -o $@ $<
